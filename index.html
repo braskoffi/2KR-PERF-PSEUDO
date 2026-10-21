@@ -46,6 +46,9 @@ main{flex:1;overflow:auto;padding:24px;min-width:0}
 .note{font-size:12px;color:var(--mut);margin-top:10px}
 .bar{height:6px;background:#1a0c2b;border-radius:4px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--acc);width:0}
 section{display:none}section.on{display:block}
+.ov{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;background:rgba(5,3,8,.97)}
+.ov.on{display:flex}.ov .big{font-size:clamp(32px,9vw,84px);font-weight:800;line-height:1.1;word-break:break-word;text-shadow:var(--glow);margin:14px 0}
+.ov .btn{max-width:220px}
 #cust{display:none;min-height:90px;margin-top:8px}
 @media(max-width:700px){
 #app.on{flex-direction:column-reverse}
@@ -62,7 +65,7 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <h1>Welcome back<b>.</b></h1>
 <p class="sub">Entre ta clé pour ouvrir ta session.</p>
 <label>Clé d'accès</label>
-<input id="key" type="password" placeholder="••••••••••" autocomplete="off">
+<input id="key" type="password" inputmode="numeric" maxlength="10" placeholder="••••••" autocomplete="off">
 <button class="btn" id="open">Ouvrir l'espace</button>
 <div class="note" id="kerr"></div>
 <a href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:14px;color:#e9a6ff;font-size:13px">Rejoindre le serveur Discord ↗</a>
@@ -84,6 +87,7 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <button data-t="res">Résultats</button>
 <button data-t="perf">Perf</button>
 <button data-t="con">Connexion</button>
+<button data-t="adm" id="nadm" style="display:none">Admin</button>
 <a href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener" style="margin-top:auto;text-align:center;padding:11px 12px;border-radius:10px;border:1px solid var(--acc);color:#fff;text-decoration:none;background:linear-gradient(90deg,#a020f0,#e040fb);box-shadow:var(--glow);font-size:13px;font-weight:700">Discord ↗</a>
 </nav>
 <main>
@@ -154,8 +158,27 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 </div>
 </section>
 
+<section id="adm">
+<div class="mono">Espace / Admin</div>
+<h1>Admin</h1><p class="sub">Tout ce que tu fais ici apparaît en direct chez tout le monde.</p>
+<div class="card"><label>Texte en gros pour tout le monde</label>
+<textarea id="atx" maxlength="300" style="min-height:90px"></textarea>
+<button class="btn" id="asend">Afficher pour tous</button>
+<button class="btn alt" id="aclr">Effacer le texte</button></div>
+<div class="card" style="margin-top:12px"><div class="k">Verrouillage général</div>
+<div class="note" id="alk"></div><button class="btn alt" id="alkb">Verrouiller le site pour tous</button></div>
+<div class="card" style="margin-top:12px"><label>N° de clé (1 à 10)</label>
+<input id="akn" inputmode="numeric" maxlength="2" placeholder="1">
+<div class="two"><button class="btn" id="arev">Révoquer</button><button class="btn alt" id="arst">Rétablir</button></div>
+<div class="note" id="arl"></div></div>
+<div class="note" id="ast"></div><div class="note" id="asy">Temps réel : connexion…</div>
+</section>
+
 </main>
 </div>
+
+<div class="ov" id="obg"><div class="mono">Message</div><div class="big" id="obt"></div><button class="btn alt" id="obc">Fermer</button></div>
+<div class="ov" id="olk"><div class="ico">🔒</div><div class="big">Accès verrouillé</div><div class="sub">L'admin a fermé le site pour le moment.</div></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -163,15 +186,85 @@ function go(t){document.querySelectorAll('nav button,section').forEach(e=>e.clas
  document.querySelector('nav button[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
 
-// accès -> chargement -> app
-function open_(){
- if(!$('key').value.trim()){$('kerr').textContent='Entre une clé pour continuer.';return}
+// accès (clés) -> chargement -> app
+const CFG={"salt":"c131613f37e42893e750cf140fa0d02b","keys":["5bfbc21c6fdb54e5d3f3dfe2ec9e1f6ea295192c334293d98ede35a67cfc524a","2d2f7587454f38d76a771d2a4f55462f120fc46cacb3ff31d82a2c88a1b9c824","913f4675b373408e15c6857a82b59b972d4920ed42e2364ae2642ad479890dd3","9437006f6a9bf1d7ff3c1a9476bd6a27806a7679fa54c80f44ba01a364b93655","c4c61d117f79a2357641e728f84d3a17516e3fbf659ca818dddb28f89e813499","bd9776ba8545227b3f83b7f3070c90dc6e445a7db6e77a2e5f96cac4bbcb0ef8","ba8c04cdb55f74dd3c8eb51de78029d1610e902e82bf6b4eecd673f26f87621a","7503fa6239658c12169bfc6d0711b6a65d75f75bda7f3fcec82db96e1bb5354a","d4abe77595c813d145d5fa7d3f8505bf8fbc57fa49e8ff1a8682967476976b2a","e5c2076fb9467b6bdb9a8dd71ba370ee80a44796ce924672a287d0ee4745f632"],"topic":"2kr-1163024025dee2dc9de6","pub":{"kty":"EC","crv":"P-256","x":"1dXFdekT3anlosYRdZPTMi1DtMT6Y06BM9gCWm7T0RQ","y":"5OoFcI8GNO3uRgjMLRWAFXe81iLMJ11kJGIVy5X6zTU"},"ea":{"s":"OBqzX3ZopvEnyyOoXe51gQ==","i":"UpqDOCf0DTZmAKRy","d":"EQPL7tfhxMA/XbQmU63svXsl7cEJl3NoMywFIQX93ndVXlNBz9KMg5dS43ECz9kFO7nbbdyLM+mtW5I1HOLf49L6pqynrE8UC0IFo2WBEpjvb8779RnbAriICusBJaBGv9zA0FMMS784s3kmqhwZWnBLHWz/46VSkSIF0ykNCXtZA4jDcdZmyrQo2QxuwKvQbJgApYUDwQJJQfVZ/B/4JkW1M0oy9SDZP59mC2rzsgDf9YQmwxgJPVy6eStHiTQan6uKXHlL7Qi80jw149eYHhHpQB3ODJ2Ps/o388cd"}};
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+let ST={t:0,x:'',l:0,r:[]},ME=null,dis=0,pubKey=null,LM='',RDY;
+const rdy=new Promise(r=>{RDY=r;setTimeout(r,2500)});
+
+async function login(k){
+ if(/^\d{6}$/.test(k)){const i=CFG.keys.indexOf(await sha(CFG.salt+k));if(i>=0)return{kid:i+1,admin:false}}
+ else if(/^\d{10}$/.test(k)){try{
+  const kk=await crypto.subtle.importKey('raw',enc.encode(k),'PBKDF2',false,['deriveKey']);
+  const ak=await crypto.subtle.deriveKey({name:'PBKDF2',salt:ub(CFG.ea.s),iterations:150000,hash:'SHA-256'},kk,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:ub(CFG.ea.i)},ak,ub(CFG.ea.d));
+  const priv=await crypto.subtle.importKey('jwk',JSON.parse(dec.decode(pt)),{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+  return{kid:0,admin:true,priv}}catch(e){}}
+ return null}
+
+let bad=0,until=0;
+async function open_(){
+ const k=$('key').value.trim();
+ if(!window.crypto||!crypto.subtle){$('kerr').textContent='Ouvre le site en https pour te connecter.';return}
+ if(Date.now()<until){$('kerr').textContent='Trop d\'essais. Réessaie dans '+Math.ceil((until-Date.now())/1000)+' s.';return}
+ $('kerr').textContent='Vérification…';
+ const me=await login(k);await rdy;
+ const rev=me&&me.kid>0&&ST.r.includes(me.kid);
+ if(!me||rev){if(++bad>=5){until=Date.now()+30000;bad=0}$('kerr').textContent=rev?'Cette clé a été révoquée.':'Clé invalide.';return}
+ ME=me;bad=0;$('kerr').textContent='';$('key').value='';
+ if(!me.admin){try{localStorage.setItem('kr_k',k)}catch(e){}}
+ $('nadm').style.display=me.admin?'':'none';
  $('login').style.display='none';$('boot').style.display='flex';
  const m=['Synchronisation des réglages…','Démarrage du moteur…','Connexion de la session…'];let p=0;
- const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on')},250)}
+ const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on');render()},250)}
   $('bp').style.width=p+'%';$('bt').textContent=m[Math.min(2,Math.floor(p/34))]},140);
 }
 $('open').onclick=open_;$('key').onkeydown=e=>{if(e.key==='Enter')open_()};
+
+// temps réel : état signé par l'admin, diffusé via ntfy.sh
+function render(){
+ if(!ME)return;
+ if(ME.kid>0&&ST.r.includes(ME.kid)){try{localStorage.removeItem('kr_k');sessionStorage.setItem('kr_m','Cette clé a été révoquée.')}catch(e){}location.reload();return}
+ const lock=!!ST.l&&!ME.admin;
+ $('olk').classList.toggle('on',lock);
+ $('obt').textContent=ST.x;$('obg').classList.toggle('on',!!ST.x&&dis!==ST.t&&!lock);
+ if(ME.admin){$('alkb').textContent=ST.l?'Déverrouiller le site':'Verrouiller le site pour tous';
+  $('alk').textContent=ST.l?'Le site est verrouillé : seuls les admins y accèdent.':'Le site est ouvert.';
+  $('arl').textContent='Clés révoquées : '+(ST.r.length?ST.r.join(', '):'aucune')}
+}
+async function onMsg(raw){try{
+ const m=JSON.parse(raw);
+ if(!await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},pubKey,ub(m.s),enc.encode(m.p)))return;
+ const s=JSON.parse(m.p);if(s.t>ST.t){ST=s;render()}}catch(e){}}
+function sync(){
+ const es=new EventSource('https://ntfy.sh/'+CFG.topic+'/sse?since=all');
+ es.onopen=()=>{$('asy').textContent='Temps réel : connecté';setTimeout(RDY,700)};
+ es.onerror=()=>{$('asy').textContent='Temps réel : reconnexion…'};
+ es.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.event==='message')onMsg(d.message)}catch(_){}};
+}
+async function pub(n){
+ const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,...n},p=JSON.stringify(s);
+ const g=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(p)));
+ LM=JSON.stringify({p,s:g});
+ try{const r=await fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM});if(!r.ok)throw 0;ST=s;render();$('ast').textContent='Envoyé à tout le monde ✓'}
+ catch(e){$('ast').textContent='Échec de l\'envoi. Vérifie ta connexion.'}
+}
+$('asend').onclick=()=>pub({x:$('atx').value.trim()});
+$('aclr').onclick=()=>{$('atx').value='';pub({x:''})};
+$('alkb').onclick=()=>pub({l:ST.l?0:1});
+const num=()=>{const n=+$('akn').value;return n>=1&&n<=CFG.keys.length?n:0};
+$('arev').onclick=()=>{const n=num();if(n&&!ST.r.includes(n))pub({r:[...ST.r,n]})};
+$('arst').onclick=()=>{const n=num();if(n)pub({r:ST.r.filter(x=>x!==n)})};
+$('obc').onclick=()=>{dis=ST.t;render()};
+// la diffusion ntfy garde 12 h : l'admin renvoie l'état tant que sa page est ouverte
+setInterval(()=>{if(ME&&ME.admin&&LM)fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM}).catch(()=>{})},5*3600*1000);
+if(window.crypto&&crypto.subtle){
+ crypto.subtle.importKey('jwk',CFG.pub,{name:'ECDSA',namedCurve:'P-256'},false,['verify']).then(k=>{pubKey=k;sync()});
+ try{const m=sessionStorage.getItem('kr_m');if(m){$('kerr').textContent=m;sessionStorage.removeItem('kr_m')}
+  const sk=localStorage.getItem('kr_k');if(sk){$('key').value=sk;open_()}}catch(e){}
+}
 $('fmt').onchange=()=>{$('cust').style.display=$('fmt').value==='cu'?'block':'none'};
 
 const L='abcdefghijklmnopqrstuvwxyz',N='0123456789';
