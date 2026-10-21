@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2KR PERF/PSEUDO</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<meta name="theme-color" content="#050308">
+<style>
+:root{--bg:#050308;--card:#0c0714;--line:#4a1d7a;--tx:#f5f0ff;--mut:#9a8bb5;--acc:#c04dff;--glow:0 0 12px rgba(192,77,255,.45);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#050308}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:2px;color:var(--acc);text-transform:uppercase}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--glow)}
+input,select,textarea{width:100%;background:#05030a;border:1px solid var(--line);color:var(--tx);padding:12px;border-radius:10px;font:inherit}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--acc);box-shadow:var(--glow)}
+label{display:block;font-size:12px;color:var(--mut);margin:12px 0 5px}
+.btn{width:100%;margin-top:14px;border:0;padding:13px;border-radius:10px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(90deg,#a020f0,#e040fb);box-shadow:var(--glow);font-size:14px}
+.btn.alt{background:#140a22;border:1px solid var(--line);box-shadow:none}
+#login,#boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);z-index:9}
+#boot{display:none;flex-direction:column;text-align:center;gap:10px}
+.box{width:100%;max-width:380px}
+.ico{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6a1bb0,#b44cff);display:flex;align-items:center;justify-content:center;font-size:28px;border:1px solid var(--acc);box-shadow:var(--glow);margin-bottom:18px}
+h1{margin:0 0 4px;font-size:30px;letter-spacing:-.5px}h1 b{color:var(--acc)}
+.sub{color:var(--mut);margin:0 0 16px}
+.pb{height:5px;background:#1a0c2b;border-radius:4px;overflow:hidden;width:240px;margin:auto}.pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a020f0,#e040fb);box-shadow:var(--glow);transition:width .15s}
+#app{display:none;height:100%}
+#app.on{display:flex}
+nav{width:210px;border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:6px;flex:none}
+.logo{font-weight:800;margin:0 8px 16px;font-size:17px}
+nav button{background:none;border:1px solid transparent;color:var(--mut);text-align:left;padding:11px 12px;border-radius:10px;font:inherit;cursor:pointer}
+nav button.on{border-color:var(--acc);color:#fff;background:linear-gradient(90deg,#4a1085,#2a0b4a);box-shadow:var(--glow)}
+main{flex:1;overflow:auto;padding:24px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}
+.k{font-size:11px;color:var(--mut)}.v{font-size:26px;font-weight:800;margin-top:4px}
+.hot{background:linear-gradient(135deg,#6a1bb0,#a020f0);border-color:var(--acc)}.hot .k{color:#e9d0ff}
+.hero{background:linear-gradient(135deg,#3a0c66,#6a1bb0);border-color:var(--acc)}
+.hero h2{font-size:28px;margin:6px 0}.hero h2 span{color:#e9a6ff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.list{max-height:260px;overflow:auto;font-family:ui-monospace,monospace;font-size:13px;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;min-height:80px}
+.list div{padding:5px 0;border-bottom:1px solid #2a1045}
+.g{color:#7dffe0}.r{color:#ff7a9c}
+.tip{padding:10px 0;border-bottom:1px solid #2a1045;color:var(--mut)}.tip b{color:var(--tx)}
+.note{font-size:12px;color:var(--mut);margin-top:10px}
+.bar{height:6px;background:#1a0c2b;border-radius:4px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--acc);width:0}
+section{display:none}section.on{display:block}
+#cust{display:none;min-height:90px;margin-top:8px}
+@media(max-width:700px){
+#app.on{flex-direction:column-reverse}
+nav{width:100%;flex-direction:row;border-right:0;border-top:1px solid var(--line);padding:6px;justify-content:space-around;gap:2px}
+.logo{display:none}nav button{text-align:center;padding:10px 4px;font-size:11px;flex:1}
+main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
+</style>
+</head>
+<body>
+
+<div id="login"><div class="box card">
+<div class="mono">01 / Accès</div><div style="height:14px"></div>
+<div class="ico">🎯</div>
+<h1>Welcome back<b>.</b></h1>
+<p class="sub">Entre ta clé pour ouvrir ta session.</p>
+<label>Clé d'accès</label>
+<input id="key" type="password" placeholder="••••••••••" autocomplete="off">
+<button class="btn" id="open">Ouvrir l'espace</button>
+<div class="note" id="kerr"></div>
+<a href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:14px;color:#e9a6ff;font-size:13px">Rejoindre le serveur Discord ↗</a>
+</div></div>
+
+<div id="boot">
+<div class="ico" style="margin:0 auto 8px">🎯</div>
+<div class="mono">Préparation</div>
+<h1 style="font-size:26px">Setting the scene<b>.</b></h1>
+<div class="sub" id="bt" style="margin:0">Synchronisation des réglages…</div>
+<div class="pb"><i id="bp"></i></div>
+</div>
+
+<div id="app">
+<nav>
+<div class="logo">2KR PERF/PSEUDO<div class="mono" style="margin-top:4px">Username discovery</div></div>
+<button class="on" data-t="ov">Aperçu</button>
+<button data-t="scan">Scan</button>
+<button data-t="res">Résultats</button>
+<button data-t="perf">Perf</button>
+<button data-t="con">Connexion</button>
+<a href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener" style="margin-top:auto;text-align:center;padding:11px 12px;border-radius:10px;border:1px solid var(--acc);color:#fff;text-decoration:none;background:linear-gradient(90deg,#a020f0,#e040fb);box-shadow:var(--glow);font-size:13px;font-weight:700">Discord ↗</a>
+</nav>
+<main>
+
+<section id="ov" class="on">
+<div class="mono">Espace / Aperçu</div>
+<h1>Overview</h1><p class="sub">Ta file, tes résultats et l'activité de la session.</p>
+<div class="grid">
+<div class="card"><div class="k">Taille de la file</div><div class="v" id="oq">0</div></div>
+<div class="card"><div class="k">Vérifiés</div><div class="v" id="oc">0</div></div>
+<div class="card hot"><div class="k">Disponibles</div><div class="v" id="oa">0</div></div>
+</div>
+<div class="card hero"><div class="mono" style="color:#e9d0ff">Générateur</div>
+<h2>Un nouveau scan.<br><span>Ton prochain pseudo.</span></h2>
+<div style="color:#e9d0ff">Choisis lettres, chiffres ou dictionnaire. Le moteur génère et vérifie.</div>
+<button class="btn" style="max-width:240px" onclick="go('scan')">Créer un scan ↗</button></div>
+<div class="card" style="margin-top:12px"><div class="k">● Activité en direct</div><div class="list" id="log"><div style="color:var(--mut)">Tout est calme. Ton prochain scan démarre ici.</div></div></div>
+</section>
+
+<section id="scan">
+<div class="mono">Espace / Scan</div>
+<h1>Create a scan</h1><p class="sub">Choisis ton format, les pseudos viennent à toi.</p>
+<div class="grid">
+<div class="card"><div class="k">File</div><div class="v" id="sq">0</div></div>
+<div class="card"><div class="k">Vérifiés</div><div class="v" id="sc">0</div></div>
+<div class="card hot"><div class="k">Disponibles</div><div class="v" id="sa">0</div></div>
+<div class="card"><div class="k">Vitesse</div><div class="v" id="ss">0/s</div></div>
+</div>
+<div class="card">
+<div class="two">
+<div><label>01 · Plateforme</label><select id="plat"><option>Discord</option><option>Twitter / X</option><option>Telegram</option><option>GitHub</option><option>Roblox</option><option>Instagram</option><option>TikTok</option></select></div>
+<div><label>02 · Format du pseudo</label><select id="fmt">
+<option value="3l">3 lettres</option><option value="4l">4 lettres</option><option value="5l">5 lettres</option><option value="s3">Semi 3L</option><option value="4n">4 chiffres</option><option value="4c">4 caractères</option><option value="5c">5 caractères</option><option value="5n">5 chiffres</option><option value="pt">Mots portugais</option><option value="en">Mots anglais</option><option value="rp">Motifs répétés</option><option value="cu">Liste perso</option></select></div>
+</div>
+<textarea id="cust" placeholder="Un pseudo par ligne"></textarea>
+<label>03 · Vitesse</label><select id="spd"><option value="400">Lente</option><option value="150" selected>Normale</option><option value="50">Rapide</option></select>
+<button class="btn" id="go">Lancer le scan</button>
+<div class="note" id="bn"></div>
+</div>
+</section>
+
+<section id="res">
+<div class="mono">Espace / Résultats</div>
+<h1>Your findings</h1><p class="sub">Les pseudos qui sont passés.</p>
+<div class="two">
+<div class="card"><div class="k g">● Disponibles</div><div class="list" id="la"></div><button class="btn alt" id="cp">Copier la liste</button></div>
+<div class="card"><div class="k r">● Indisponibles</div><div class="list" id="lu"></div></div>
+</div>
+<div class="note">Les résultats restent dans cette session.</div>
+</section>
+
+<section id="perf">
+<div class="mono">Espace / Performance</div>
+<h1>Performance</h1><p class="sub">Mesures réelles de cet appareil, rien d'estimé.</p>
+<div class="grid" id="pg"></div>
+<div class="card"><div class="k">Score de fluidité</div><div class="v" id="score">…</div><div class="bar"><i id="sb"></i></div></div>
+<div class="card" style="margin-top:12px"><div class="k">Conseils</div><div id="tips"></div></div>
+<button class="btn alt" id="rf">Actualiser</button>
+</section>
+
+<section id="con">
+<div class="mono">Espace / Connexion</div>
+<h1>Connections</h1><p class="sub">Relie le moteur de vérification.</p>
+<div class="card">
+<label>URL de ton serveur de vérification</label>
+<input id="api" placeholder="https://mon-serveur.exemple/check?u=">
+<div class="note">Le serveur reçoit le pseudo (u) et la plateforme (p), et répond {"available":true} ou {"available":false}. Sans serveur, les pseudos sont générés mais pas vérifiés.</div>
+</div>
+</section>
+
+</main>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function go(t){document.querySelectorAll('nav button,section').forEach(e=>e.classList.remove('on'));
+ document.querySelector('nav button[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+
+// accès -> chargement -> app
+function open_(){
+ if(!$('key').value.trim()){$('kerr').textContent='Entre une clé pour continuer.';return}
+ $('login').style.display='none';$('boot').style.display='flex';
+ const m=['Synchronisation des réglages…','Démarrage du moteur…','Connexion de la session…'];let p=0;
+ const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on')},250)}
+  $('bp').style.width=p+'%';$('bt').textContent=m[Math.min(2,Math.floor(p/34))]},140);
+}
+$('open').onclick=open_;$('key').onkeydown=e=>{if(e.key==='Enter')open_()};
+$('fmt').onchange=()=>{$('cust').style.display=$('fmt').value==='cu'?'block':'none'};
+
+const L='abcdefghijklmnopqrstuvwxyz',N='0123456789';
+const PT=['simplificara','largariamos','enfiaremos','impacientara','desmaiara','zeinazes','amanhecer','saudade','coracao','abraco','vitoria','estrela'];
+const EN=['shadow','ghost','phantom','falcon','ember','vortex','cipher','nomad','blaze','frost','raven','titan'];
+const r=s=>s[Math.floor(Math.random()*s.length)];
+let pool=[],pi=0;
+function gen(f){
+ const x=(s,n)=>Array.from({length:n},()=>r(s)).join('');
+ if(f==='3l')return x(L,3);if(f==='4l')return x(L,4);if(f==='5l')return x(L,5);
+ if(f==='s3'){const a=x(L,2)+r(N);return a.split('').sort(()=>Math.random()-.5).join('')}
+ if(f==='4n')return x(N,4);if(f==='5n')return x(N,5);
+ if(f==='4c')return x(L+N,4);if(f==='5c')return x(L+N,5);
+ if(f==='pt')return r(PT);if(f==='en')return r(EN)+(Math.random()<.5?'':r(N));
+ if(f==='rp'){const a=r(L),b=r(L);return r([a+a+b+b,a+b+a+b,a+a+a,a+b+b+a,a+a+a+a])}
+ if(f==='cu'){if(!pool.length)return null;const u=pool[pi%pool.length];pi++;return u}
+}
+let run=false,q=0,c=0,av=[],un=[],seen=new Set(),t0=0;
+function log(m){const d=document.createElement('div');d.textContent=m;const l=$('log');if(l.firstChild&&l.firstChild.style)l.innerHTML='';l.prepend(d);while(l.children.length>60)l.lastChild.remove()}
+function paint(){
+ const sp=(c/Math.max(1,(Date.now()-t0)/1000)).toFixed(1)+'/s';
+ $('sq').textContent=$('oq').textContent=q;$('sc').textContent=$('oc').textContent=c;$('sa').textContent=$('oa').textContent=av.length;$('ss').textContent=sp;
+ const CL={'Discord':'https://discord.com/channels/@me','Twitter / X':'https://x.com/settings/screen_name','Telegram':'https://web.telegram.org','GitHub':'https://github.com/settings/admin','Roblox':'https://www.roblox.com/my/account','Instagram':'https://www.instagram.com/accounts/edit/','TikTok':'https://www.tiktok.com/setting'};
+ $('la').innerHTML=av.map(x=>'<div class="g">'+x+' <a style="color:#e9a6ff;float:right" target="_blank" rel="noopener" href="'+CL[$('plat').value]+'">Réclamer ↗</a></div>').join('');
+ $('lu').innerHTML=un.slice(-150).map(x=>'<div class="r">'+x+'</div>').join('');
+}
+async function check(u){
+ const api=$('api').value.trim();if(!api)return null;
+ try{const res=await fetch(api+encodeURIComponent(u)+'&p='+encodeURIComponent($('plat').value));return !!(await res.json()).available}catch(e){return null}
+}
+$('go').onclick=async()=>{
+ if(run){run=false;$('go').textContent='Lancer le scan';return}
+ pool=$('cust').value.split('\n').map(s=>s.trim()).filter(Boolean);pi=0;
+ if($('fmt').value==='cu'&&!pool.length){$('bn').textContent='Ajoute au moins un pseudo dans ta liste.';return}
+ run=true;$('go').textContent='Arrêter';q=c=0;av=[];un=[];seen.clear();t0=Date.now();$('bn').textContent='';
+ log('Scan '+$('plat').value+' démarré.');
+ while(run){
+  let u,t=0;do{u=gen($('fmt').value);t++}while(u&&seen.has(u)&&t<60);
+  if(!u||seen.has(u)){log('Plus de pseudos à tester.');break}
+  seen.add(u);q++;paint();
+  const ok=await check(u);c++;
+  if(ok===null){$('bn').textContent='Aucun serveur configuré (Connexion) : pseudos générés mais non vérifiés.';log(u+' · non vérifié')}
+  else{(ok?av:un).push(u);log(u+(ok?' · disponible':' · pris'))}
+  q--;paint();await new Promise(s=>setTimeout(s,+$('spd').value));
+ }
+ run=false;$('go').textContent='Lancer le scan';
+};
+$('cp').onclick=()=>{try{navigator.clipboard.writeText(av.join('\n'));$('cp').textContent='Copié'}catch(e){}};
+
+async function measure(){
+ const cores=navigator.hardwareConcurrency||'?',mem=navigator.deviceMemory||null;
+ let bat=null;try{const b=await navigator.getBattery();bat=Math.round(b.level*100)+'%'}catch(e){}
+ const con=navigator.connection;
+ const t=performance.now();let x=0;for(let i=0;i<3e6;i++)x+=Math.sqrt(i);const cpu=performance.now()-t;
+ let f=0;const s=performance.now();await new Promise(res=>{(function l(){f++;performance.now()-s<1000?requestAnimationFrame(l):res()})()});
+ const cd=(k,v)=>'<div class="card"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+ $('pg').innerHTML=cd('Cœurs CPU',cores)+cd('RAM (approx.)',mem?mem+' Go':'n/d')+cd('FPS mesurés',f)+cd('Test CPU',cpu.toFixed(0)+' ms')+cd('Batterie',bat||'n/d')+cd('Réseau',con?con.effectiveType:'n/d');
+ let sc=100,tips=[];
+ if(f<50){sc-=20;tips.push('<b>FPS bas.</b> Ferme les onglets et applis en arrière-plan.')}
+ if(cpu>120){sc-=20;tips.push('<b>CPU chargé.</b> Un processus lourd tourne probablement en fond.')}
+ if(mem&&mem<4){sc-=10;tips.push('<b>Peu de RAM.</b> Évite de garder plusieurs jeux ou onglets ouverts.')}
+ if(con&&(con.effectiveType==='2g'||con.effectiveType==='3g')){sc-=10;tips.push('<b>Réseau lent.</b> Passe en Wi-Fi si possible.')}
+ if(!tips.length)tips.push('<b>Tout est bon.</b> Aucun problème détecté.');
+ tips.push('<b>Limite.</b> Un navigateur ne peut pas vider les fichiers temporaires ni libérer la RAM. Il faut une app installée pour ça.');
+ $('score').textContent=sc;$('sb').style.width=sc+'%';
+ $('tips').innerHTML=tips.map(t=>'<div class="tip">'+t+'</div>').join('');
+}
+$('rf').onclick=measure;
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

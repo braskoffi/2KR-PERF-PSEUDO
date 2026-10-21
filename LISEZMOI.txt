@@ -1,0 +1,23 @@
+2KR PERF/PSEUDO
+================
+
+Contenu du dossier
+- index.html    le site complet (accès, scan de pseudos, résultats, performance, connexion)
+- manifest.json, sw.js, icon.svg   pour l'installer comme une app
+
+Utilisation sur PC
+1. Décompresse le .zip.
+2. Double-clique sur index.html (s'ouvre dans ton navigateur).
+
+Installer comme une app (PC et téléphone)
+Il faut que le site soit en ligne en https (GitHub Pages, Netlify, Cloudflare Pages...).
+Dépose le contenu du dossier, puis :
+- PC (Chrome/Edge) : icône « Installer » dans la barre d'adresse.
+- Téléphone : menu du navigateur > « Ajouter à l'écran d'accueil ».
+
+Vérification des pseudos
+Le site génère les pseudos. Pour les vérifier, branche un serveur dans
+l'onglet « Connexion » : il reçoit ?u=pseudo&p=plateforme et répond
+{"available":true} ou {"available":false}.
+
+Discord : https://discord.gg/4Sr4AvRahb
