@@ -286,7 +286,7 @@ $('alkb').onclick=()=>pub({l:ST.l?0:1});
 const num=()=>{const n=+$('akn').value;return n>=1&&n<=CFG.keys.length?n:0};
 $('arev').onclick=()=>{const n=num();if(n&&!ST.r.includes(n))pub({r:[...ST.r,n]})};
 $('arst').onclick=()=>{const n=num();if(n)pub({r:ST.r.filter(x=>x!==n)})};
-const DEF_CID='';// optionnel : colle ici ton Client ID Discord
+const DEF_CID='1562523836165914735';// optionnel : colle ici ton Client ID Discord
 const cid=()=>ST.d||DEF_CID;
 function prof(){try{return JSON.parse(localStorage.getItem('kr_d'))}catch(e){return null}}
 function accRender(){
