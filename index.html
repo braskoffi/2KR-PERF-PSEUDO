@@ -151,6 +151,10 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <section id="con">
 <div class="mono">Espace / Connexion</div>
 <h1>Connections</h1><p class="sub">Relie le moteur de vérification.</p>
+<div class="card" style="margin-bottom:12px"><div class="k">Compte réseau social</div>
+<div id="acc" style="display:flex;align-items:center;gap:12px;margin-top:10px"></div>
+<button class="btn" id="dlog">Se connecter avec Discord</button>
+<div class="note" id="dnote"></div></div>
 <div class="card">
 <label>URL de ton serveur de vérification</label>
 <input id="api" placeholder="https://mon-serveur.exemple/check?u=">
@@ -171,6 +175,10 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <input id="akn" inputmode="numeric" maxlength="2" placeholder="1">
 <div class="two"><button class="btn" id="arev">Révoquer</button><button class="btn alt" id="arst">Rétablir</button></div>
 <div class="note" id="arl"></div></div>
+<div class="card" style="margin-top:12px"><label>Client ID Discord (connexion par compte)</label>
+<input id="adc" inputmode="numeric" maxlength="25" placeholder="123456789012345678">
+<button class="btn" id="adsv">Enregistrer pour tous</button>
+<div class="note" id="adn"></div></div>
 <div class="note" id="ast"></div><div class="note" id="asy">Temps réel : connexion…</div>
 </section>
 
@@ -191,7 +199,7 @@ const CFG={"salt":"c131613f37e42893e750cf140fa0d02b","keys":["5bfbc21c6fdb54e5d3
 const enc=new TextEncoder(),dec=new TextDecoder();
 const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-let ST={t:0,x:'',l:0,r:[]},ME=null,dis=0,pubKey=null,LM='',RDY;
+let ST={t:0,x:'',l:0,r:[],d:''},ME=null,dis=0,pubKey=null,LM='',RDY;
 const rdy=new Promise(r=>{RDY=r;setTimeout(r,2500)});
 
 async function login(k){
@@ -218,7 +226,7 @@ async function open_(){
  $('nadm').style.display=me.admin?'':'none';
  $('login').style.display='none';$('boot').style.display='flex';
  const m=['Synchronisation des réglages…','Démarrage du moteur…','Connexion de la session…'];let p=0;
- const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on');render()},250)}
+ const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on');render();try{const t=sessionStorage.getItem('kr_t');if(t){sessionStorage.removeItem('kr_t');go(t)}}catch(e){}},250)}
   $('bp').style.width=p+'%';$('bt').textContent=m[Math.min(2,Math.floor(p/34))]},140);
 }
 $('open').onclick=open_;$('key').onkeydown=e=>{if(e.key==='Enter')open_()};
@@ -228,10 +236,11 @@ function render(){
  if(!ME)return;
  if(ME.kid>0&&ST.r.includes(ME.kid)){try{localStorage.removeItem('kr_k');sessionStorage.setItem('kr_m','Cette clé a été révoquée.')}catch(e){}location.reload();return}
  const lock=!!ST.l&&!ME.admin;
- $('olk').classList.toggle('on',lock);
+ $('olk').classList.toggle('on',lock);accRender();
  $('obt').textContent=ST.x;$('obg').classList.toggle('on',!!ST.x&&dis!==ST.t&&!lock);
  if(ME.admin){$('alkb').textContent=ST.l?'Déverrouiller le site':'Verrouiller le site pour tous';
   $('alk').textContent=ST.l?'Le site est verrouillé : seuls les admins y accèdent.':'Le site est ouvert.';
+  $('adn').textContent='Actuel : '+(ST.d||'aucun')+' · À ajouter dans Discord > OAuth2 > Redirects : '+location.origin+location.pathname;
   $('arl').textContent='Clés révoquées : '+(ST.r.length?ST.r.join(', '):'aucune')}
 }
 async function onMsg(raw){try{
@@ -245,7 +254,7 @@ function sync(){
  es.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.event==='message')onMsg(d.message)}catch(_){}};
 }
 async function pub(n){
- const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,...n},p=JSON.stringify(s);
+ const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,d:ST.d||'',...n},p=JSON.stringify(s);
  const g=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(p)));
  LM=JSON.stringify({p,s:g});
  try{const r=await fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM});if(!r.ok)throw 0;ST=s;render();$('ast').textContent='Envoyé à tout le monde ✓'}
@@ -257,6 +266,27 @@ $('alkb').onclick=()=>pub({l:ST.l?0:1});
 const num=()=>{const n=+$('akn').value;return n>=1&&n<=CFG.keys.length?n:0};
 $('arev').onclick=()=>{const n=num();if(n&&!ST.r.includes(n))pub({r:[...ST.r,n]})};
 $('arst').onclick=()=>{const n=num();if(n)pub({r:ST.r.filter(x=>x!==n)})};
+function prof(){try{return JSON.parse(localStorage.getItem('kr_d'))}catch(e){return null}}
+function accRender(){
+ const p=prof(),a=$('acc');a.innerHTML='';
+ if(p){const i=document.createElement('img');i.width=i.height=44;i.style.borderRadius='50%';
+  i.src=p.a?'https://cdn.discordapp.com/avatars/'+p.id+'/'+p.a+'.png?size=64':'https://cdn.discordapp.com/embed/avatars/0.png';a.appendChild(i);
+  const d=document.createElement('div');d.innerHTML='<b></b><div class="k">Connecté avec Discord</div>';d.firstChild.textContent=p.n;a.appendChild(d)}
+ else{a.innerHTML='<div class="k">Aucun compte connecté.</div>'}
+ $('dlog').textContent=p?'Déconnecter le compte':'Se connecter avec Discord';
+ $('dnote').textContent=(!p&&!ST.d)?'L\'admin n\'a pas encore activé la connexion Discord.':'';
+}
+$('dlog').onclick=()=>{
+ if(prof()){try{localStorage.removeItem('kr_d')}catch(e){}accRender();return}
+ if(!ST.d)return;
+ location.href='https://discord.com/oauth2/authorize?client_id='+encodeURIComponent(ST.d)+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(location.origin+location.pathname);
+};
+$('adsv').onclick=()=>{const v=$('adc').value.trim();if(v===''||/^\d{15,25}$/.test(v))pub({d:v});else $('ast').textContent='Client ID invalide (chiffres uniquement).'};
+if(location.hash.includes('access_token')){
+ const t=new URLSearchParams(location.hash.slice(1)).get('access_token');history.replaceState(null,'',location.pathname);
+ if(t)fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+t}}).then(r=>r.json()).then(u=>{
+  if(u.id){try{localStorage.setItem('kr_d',JSON.stringify({id:u.id,n:u.global_name||u.username,a:u.avatar||''}));sessionStorage.setItem('kr_t','con')}catch(e){}accRender()}}).catch(()=>{});
+}
 $('obc').onclick=()=>{dis=ST.t;render()};
 // la diffusion ntfy garde 12 h : l'admin renvoie l'état tant que sa page est ouverte
 setInterval(()=>{if(ME&&ME.admin&&LM)fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM}).catch(()=>{})},5*3600*1000);
