@@ -286,26 +286,29 @@ $('alkb').onclick=()=>pub({l:ST.l?0:1});
 const num=()=>{const n=+$('akn').value;return n>=1&&n<=CFG.keys.length?n:0};
 $('arev').onclick=()=>{const n=num();if(n&&!ST.r.includes(n))pub({r:[...ST.r,n]})};
 $('arst').onclick=()=>{const n=num();if(n)pub({r:ST.r.filter(x=>x!==n)})};
+const DEF_CID='';// optionnel : colle ici ton Client ID Discord
+const cid=()=>ST.d||DEF_CID;
 function prof(){try{return JSON.parse(localStorage.getItem('kr_d'))}catch(e){return null}}
 function accRender(){
  const p=prof(),a=$('acc');a.innerHTML='';
  if(p){const i=document.createElement('img');i.width=i.height=44;i.style.borderRadius='50%';
   i.src=p.a?'https://cdn.discordapp.com/avatars/'+p.id+'/'+p.a+'.png?size=64':'https://cdn.discordapp.com/embed/avatars/0.png';a.appendChild(i);
-  const d=document.createElement('div');d.innerHTML='<b></b><div class="k">Connecté avec Discord</div>';d.firstChild.textContent=p.n;a.appendChild(d)}
+  const d=document.createElement('div');d.innerHTML='<div class="k">Connecté en tant que :</div><b style="font-size:17px"></b>';d.lastChild.textContent=p.n;a.appendChild(d)}
  else{a.innerHTML='<div class="k">Aucun compte connecté.</div>'}
  $('dlog').textContent=p?'Déconnecter le compte':'Se connecter avec Discord';
- $('dnote').textContent=(!p&&!ST.d)?'L\'admin n\'a pas encore activé la connexion Discord.':'';
+ $('dnote').textContent=(!p&&!cid())?'Connexion Discord non configurée : l\'admin doit enregistrer le Client ID de l\'application Discord (onglet Admin).':'';
 }
 $('dlog').onclick=()=>{
  if(prof()){try{localStorage.removeItem('kr_d')}catch(e){}accRender();return}
- if(!ST.d)return;
- location.href='https://discord.com/oauth2/authorize?client_id='+encodeURIComponent(ST.d)+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(location.origin+location.pathname);
+ if(!cid()){accRender();return}
+ location.href='https://discord.com/oauth2/authorize?client_id='+encodeURIComponent(cid())+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(location.origin+location.pathname);
 };
 $('adsv').onclick=()=>{const v=$('adc').value.trim();if(v===''||/^\d{15,25}$/.test(v))pub({d:v});else $('ast').textContent='Client ID invalide (chiffres uniquement).'};
+if(location.hash.includes('error=')){try{sessionStorage.setItem('kr_t','con')}catch(e){}history.replaceState(null,'',location.pathname)}
 if(location.hash.includes('access_token')){
  const t=new URLSearchParams(location.hash.slice(1)).get('access_token');history.replaceState(null,'',location.pathname);
  if(t)fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+t}}).then(r=>r.json()).then(u=>{
-  if(u.id){try{localStorage.setItem('kr_d',JSON.stringify({id:u.id,n:u.global_name||u.username,a:u.avatar||''}));sessionStorage.setItem('kr_t','con')}catch(e){}accRender()}}).catch(()=>{});
+  if(u.id){try{localStorage.setItem('kr_d',JSON.stringify({id:u.id,n:u.global_name||u.username,a:u.avatar||''}));sessionStorage.setItem('kr_t','con')}catch(e){}accRender()}}).catch(()=>{try{sessionStorage.setItem('kr_t','con')}catch(e){}});
 }
 $('obc').onclick=()=>{dis=ST.t;render()};
 // la diffusion ntfy garde 12 h : l'admin renvoie l'état tant que sa page est ouverte
