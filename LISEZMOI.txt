@@ -32,4 +32,47 @@ Déployer le serveur (gratuit)
 Discord limite le nombre de vérifications : le site met le scan en pause
 automatiquement quand la limite est atteinte. Garde la vitesse Normale ou Lente.
 
+Se connecter avec un compte (onglet Connexion)
+-----------------------------------------------
+- Discord : fonctionne déjà, aucun serveur requis. Dans l'onglet Admin, colle le
+  Client ID de ton appli Discord (Developer Portal > ton appli > OAuth2 > General).
+  Ajoute ensuite l'adresse de ta page (celle affichée dans l'onglet Admin, sous
+  "À ajouter dans Discord > OAuth2 > Redirects") dans OAuth2 > Redirects de Discord.
+
+- Telegram : aucun serveur requis non plus.
+  1. Ouvre une conversation avec @BotFather sur Telegram, envoie /newbot (ou utilise
+     un bot existant), note son pseudo (sans le @).
+  2. Toujours avec @BotFather : /setdomain, choisis ton bot, puis colle le nom de
+     domaine de ta page (sans https://, juste le domaine, ex: tonsite.github.io).
+  3. Dans l'onglet Admin du site, colle le pseudo du bot. Le bouton "Se connecter
+     avec Telegram" apparaît dans l'onglet Connexion.
+
+- GitHub, Twitter / X, Roblox : nécessitent ton serveur (worker.js), car ces
+  plateformes exigent une clé secrète qu'on ne peut jamais mettre dans le site
+  lui-même (n'importe qui pourrait l'y lire et s'en servir).
+  Pour chacune :
+  1. Crée une application OAuth sur la plateforme :
+     - GitHub : github.com/settings/developers > OAuth Apps > New OAuth App.
+     - Twitter / X : developer.twitter.com > ton projet > app Keys and tokens,
+       active "OAuth 2.0" (type d'app : confidentiel / Web App).
+     - Roblox : create.roblox.com/credentials > OAuth 2.0 > Create app.
+  2. Renseigne la Redirect URI EXACTEMENT comme l'onglet Admin du site te
+     l'indique (une fois « Mon serveur » rempli) : elle se termine par
+     /oauth/github/callback, /oauth/twitter/callback ou /oauth/roblox/callback.
+  3. Récupère le Client ID (public) et le Client Secret (jamais public).
+  4. Dans Cloudflare : ton Worker > Settings > Variables and Secrets, ajoute :
+     GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+     TWITTER_CLIENT_ID, TWITTER_CLIENT_SECRET,
+     ROBLOX_CLIENT_ID, ROBLOX_CLIENT_SECRET
+     (encrypt les deux "_SECRET"). Redeploy le Worker après les avoir ajoutées.
+  5. Dans l'onglet Admin du site, colle les mêmes Client ID (ils doivent être
+     identiques à ceux mis dans Cloudflare — le Client Secret, lui, ne se met
+     jamais dans le site).
+
+- Instagram et TikTok ne sont pas proposés : ces deux plateformes exigent que
+  Meta ou TikTok examinent et valident ton application avant qu'elle fonctionne
+  réellement pour d'autres personnes que toi, ce qui peut prendre plusieurs
+  jours à plusieurs semaines. Demande leur validation si tu veux les ajouter
+  plus tard.
+
 Discord : https://discord.gg/4Sr4AvRahb

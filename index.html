@@ -179,6 +179,28 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <div id="acc" style="display:flex;align-items:center;gap:12px;margin-top:10px"></div>
 <button class="btn" id="dlog">Se connecter avec Discord</button>
 <div class="note" id="dnote"></div></div>
+
+<div class="card" style="margin-bottom:12px"><div class="k">Telegram</div>
+<div id="acc_tg" style="display:flex;align-items:center;gap:12px;margin-top:10px"></div>
+<div id="tgwrap" style="margin-top:8px"></div>
+<button class="btn alt" id="tgdis" style="display:none">Déconnecter le compte</button>
+<div class="note" id="tgnote"></div></div>
+
+<div class="card" style="margin-bottom:12px"><div class="k">GitHub</div>
+<div id="acc_gh" style="display:flex;align-items:center;gap:12px;margin-top:10px"></div>
+<button class="btn" id="ghlog">Se connecter avec GitHub</button>
+<div class="note" id="ghnote"></div></div>
+
+<div class="card" style="margin-bottom:12px"><div class="k">Twitter / X</div>
+<div id="acc_tw" style="display:flex;align-items:center;gap:12px;margin-top:10px"></div>
+<button class="btn" id="twlog">Se connecter avec Twitter / X</button>
+<div class="note" id="twnote"></div></div>
+
+<div class="card" style="margin-bottom:12px"><div class="k">Roblox</div>
+<div id="acc_rb" style="display:flex;align-items:center;gap:12px;margin-top:10px"></div>
+<button class="btn" id="rblog">Se connecter avec Roblox</button>
+<div class="note" id="rbnote"></div></div>
+
 <div class="card">
 <label>Méthode de vérification</label>
 <select class="vm"><option value="direct">Directe (Discord / GitHub)</option><option value="server">Mon serveur</option></select>
@@ -207,6 +229,18 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <input id="adc" inputmode="numeric" maxlength="25" placeholder="123456789012345678">
 <button class="btn" id="adsv">Enregistrer pour tous</button>
 <div class="note" id="adn"></div></div>
+<div class="card" style="margin-top:12px"><div class="k">Autres connexions par compte</div>
+<label>Pseudo du bot Telegram (sans @, via @BotFather)</label>
+<input id="atg" maxlength="32" placeholder="moncoolbot">
+<label>Client ID GitHub</label>
+<input id="agh" maxlength="60" placeholder="Iv1.xxxxxxxxxxxxxxxx">
+<label>Client ID Twitter / X</label>
+<input id="atw" maxlength="80" placeholder="xxxxxxxxxxxxxxxxxxxxx">
+<label>Client ID Roblox</label>
+<input id="arb" maxlength="60" placeholder="1234567890123456789">
+<button class="btn" id="adsv2">Enregistrer pour tous</button>
+<div class="note" id="adn2"></div>
+<div class="note">Les clés secrètes de ces applications (GitHub, Twitter/X, Roblox) ne se configurent jamais ici : elles restent uniquement dans les variables d'environnement de ton worker Cloudflare. Voir LISEZMOI.</div></div>
 <div class="note" id="ast"></div><div class="note" id="asy">Temps réel : connexion…</div>
 </section>
 
@@ -227,7 +261,7 @@ const CFG={"salt":"c131613f37e42893e750cf140fa0d02b","keys":["5bfbc21c6fdb54e5d3
 const enc=new TextEncoder(),dec=new TextDecoder();
 const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-let ST={t:0,x:'',l:0,r:[],d:''},ME=null,dis=0,pubKey=null,LM='',RDY;
+let ST={t:0,x:'',l:0,r:[],d:'',tg:'',gh:'',tw:'',rb:''},ME=null,dis=0,pubKey=null,LM='',RDY;
 const rdy=new Promise(r=>{RDY=r;setTimeout(r,2500)});
 
 async function login(k){
@@ -269,7 +303,11 @@ function render(){
  if(ME.admin){$('alkb').textContent=ST.l?'Déverrouiller le site':'Verrouiller le site pour tous';
   $('alk').textContent=ST.l?'Le site est verrouillé : seuls les admins y accèdent.':'Le site est ouvert.';
   $('adn').textContent='Actuel : '+(ST.d||'aucun')+' · À ajouter dans Discord > OAuth2 > Redirects : '+location.origin+location.pathname;
-  $('arl').textContent='Clés révoquées : '+(ST.r.length?ST.r.join(', '):'aucune')}
+  $('arl').textContent='Clés révoquées : '+(ST.r.length?ST.r.join(', '):'aucune');
+  const wb=workerBase();
+  $('adn2').textContent='Actuel : Telegram='+(ST.tg||'aucun')+' · GitHub='+(ST.gh||'aucun')+' · Twitter/X='+(ST.tw||'aucun')+' · Roblox='+(ST.rb||'aucun')+
+   (wb?(' · Redirect URIs à enregistrer sur chaque plateforme (doivent être strictement identiques) : GitHub='+wb+'/oauth/github/callback · Twitter/X='+wb+'/oauth/twitter/callback · Roblox='+wb+'/oauth/roblox/callback'):' · Renseigne d\'abord ton serveur (Mon serveur) pour voir les Redirect URIs à enregistrer.')
+ }
 }
 async function onMsg(raw){try{
  const m=JSON.parse(raw);
@@ -282,7 +320,7 @@ function sync(){
  es.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.event==='message')onMsg(d.message)}catch(_){}};
 }
 async function pub(n){
- const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,d:ST.d||'',...n},p=JSON.stringify(s);
+ const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,d:ST.d||'',tg:ST.tg||'',gh:ST.gh||'',tw:ST.tw||'',rb:ST.rb||'',...n},p=JSON.stringify(s);
  const g=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(p)));
  LM=JSON.stringify({p,s:g});
  try{const r=await fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM});if(!r.ok)throw 0;ST=s;render();$('ast').textContent='Envoyé à tout le monde ✓'}
@@ -297,14 +335,34 @@ $('arst').onclick=()=>{const n=num();if(n)pub({r:ST.r.filter(x=>x!==n)})};
 const DEF_CID='1562523836165914735';// optionnel : colle ici ton Client ID Discord
 const cid=()=>ST.d||DEF_CID;
 function prof(){try{return JSON.parse(localStorage.getItem('kr_d'))}catch(e){return null}}
-function accRender(){
- const p=prof(),a=$('acc');a.innerHTML='';
+function accCard(containerId,p){
+ const a=$(containerId);if(!a)return;a.innerHTML='';
  if(p){const i=document.createElement('img');i.width=i.height=44;i.style.borderRadius='50%';
-  i.src=p.a?'https://cdn.discordapp.com/avatars/'+p.id+'/'+p.a+'.png?size=64':'https://cdn.discordapp.com/embed/avatars/0.png';a.appendChild(i);
+  i.src=p.a||'https://cdn.discordapp.com/embed/avatars/0.png';a.appendChild(i);
   const d=document.createElement('div');d.innerHTML='<div class="k">Connecté en tant que :</div><b style="font-size:17px"></b>';d.lastChild.textContent=p.n;a.appendChild(d)}
  else{a.innerHTML='<div class="k">Aucun compte connecté.</div>'}
+}
+function accRender(){
+ const p=prof();
+ accCard('acc',p?{n:p.n,a:p.a?'https://cdn.discordapp.com/avatars/'+p.id+'/'+p.a+'.png?size=64':''}:null);
  $('dlog').textContent=p?'Déconnecter le compte':'Se connecter avec Discord';
  $('dnote').textContent=(!p&&!cid())?'Connexion Discord non configurée : l\'admin doit enregistrer le Client ID de l\'application Discord (onglet Admin).':'';
+
+ const gh=profX('kr_gh');accCard('acc_gh',gh);
+ $('ghlog').textContent=gh?'Déconnecter le compte':'Se connecter avec GitHub';
+ if(!gh)$('ghnote').textContent=!ST.gh?'Connexion GitHub non configurée (onglet Admin).':'';
+
+ const tw=profX('kr_tw');accCard('acc_tw',tw);
+ $('twlog').textContent=tw?'Déconnecter le compte':'Se connecter avec Twitter / X';
+ if(!tw)$('twnote').textContent=!ST.tw?'Connexion Twitter/X non configurée (onglet Admin).':'';
+
+ const rb=profX('kr_rb');accCard('acc_rb',rb);
+ $('rblog').textContent=rb?'Déconnecter le compte':'Se connecter avec Roblox';
+ if(!rb)$('rbnote').textContent=!ST.rb?'Connexion Roblox non configurée (onglet Admin).':'';
+
+ const tg=profX('kr_tg');accCard('acc_tg',tg);
+ $('tgdis').style.display=tg?'':'none';
+ tgWidgetRender();
 }
 $('dlog').onclick=()=>{
  if(prof()){try{localStorage.removeItem('kr_d')}catch(e){}accRender();return}
@@ -312,13 +370,87 @@ $('dlog').onclick=()=>{
  location.href='https://discord.com/oauth2/authorize?client_id='+encodeURIComponent(cid())+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(location.origin+location.pathname);
 };
 $('adsv').onclick=()=>{const v=$('adc').value.trim();if(v===''||/^\d{15,25}$/.test(v))pub({d:v});else $('ast').textContent='Client ID invalide (chiffres uniquement).'};
+$('adsv2').onclick=()=>{
+ const tg=$('atg').value.trim(),gh=$('agh').value.trim(),tw=$('atw').value.trim(),rb=$('arb').value.trim();
+ if(tg&&!/^[A-Za-z0-9_]{5,32}$/.test(tg)){$('ast').textContent='Pseudo du bot Telegram invalide.';return}
+ pub({tg,gh,tw,rb});
+};
+
+// connexions OAuth génériques (GitHub, Twitter/X, Roblox) : le code est échangé par ton worker, jamais par le site
+function workerBase(){try{return (VA||'').trim().replace(/\/+$/,'')}catch(e){return ''}}
+function randB64url(n){const b=new Uint8Array(n);crypto.getRandomValues(b);return b64(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+async function pkceChallenge(v){const d=await crypto.subtle.digest('SHA-256',enc.encode(v));return b64(new Uint8Array(d)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function profX(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+async function oauthStart(platform){
+ const wb=workerBase();
+ const noteId={github:'ghnote',twitter:'twnote',roblox:'rbnote'}[platform];
+ if(!wb){$(noteId).textContent='Configure d\'abord ton serveur (onglet « Mon serveur ») : il sert aussi de pont OAuth.';return}
+ const ru=wb+'/oauth/'+platform+'/callback';
+ const payload={return:location.origin+location.pathname,nonce:randB64url(8)};
+ let url;
+ if(platform==='github'){
+  if(!ST.gh){$(noteId).textContent='Client ID GitHub non configuré (onglet Admin).';return}
+  const state=btoa(JSON.stringify(payload));
+  url='https://github.com/login/oauth/authorize?client_id='+encodeURIComponent(ST.gh)+'&scope=read:user&redirect_uri='+encodeURIComponent(ru)+'&state='+encodeURIComponent(state);
+ }else if(platform==='twitter'){
+  if(!ST.tw){$(noteId).textContent='Client ID Twitter/X non configuré (onglet Admin).';return}
+  const verifier=randB64url(64);payload.verifier=verifier;const chall=await pkceChallenge(verifier);
+  const state=btoa(JSON.stringify(payload));
+  url='https://twitter.com/i/oauth2/authorize?response_type=code&client_id='+encodeURIComponent(ST.tw)+'&redirect_uri='+encodeURIComponent(ru)+'&scope='+encodeURIComponent('users.read tweet.read')+'&state='+encodeURIComponent(state)+'&code_challenge='+chall+'&code_challenge_method=S256';
+ }else if(platform==='roblox'){
+  if(!ST.rb){$(noteId).textContent='Client ID Roblox non configuré (onglet Admin).';return}
+  const verifier=randB64url(64);payload.verifier=verifier;const chall=await pkceChallenge(verifier);
+  const state=btoa(JSON.stringify(payload));
+  url='https://apis.roblox.com/oauth/v1/authorize?response_type=code&client_id='+encodeURIComponent(ST.rb)+'&redirect_uri='+encodeURIComponent(ru)+'&scope='+encodeURIComponent('openid profile')+'&state='+encodeURIComponent(state)+'&code_challenge='+chall+'&code_challenge_method=S256';
+ }
+ if(url)location.href=url;
+}
+function toggleAcc(platform,storKey){
+ if(profX(storKey)){try{localStorage.removeItem(storKey)}catch(e){}accRender();return}
+ oauthStart(platform);
+}
+$('ghlog').onclick=()=>toggleAcc('github','kr_gh');
+$('twlog').onclick=()=>toggleAcc('twitter','kr_tw');
+$('rblog').onclick=()=>toggleAcc('roblox','kr_rb');
+$('tgdis').onclick=()=>{try{localStorage.removeItem('kr_tg')}catch(e){}accRender()};
+window.tgAuth=function(user){
+ try{localStorage.setItem('kr_tg',JSON.stringify({id:user.id,n:user.username||user.first_name,a:user.photo_url||''}))}catch(e){}
+ accRender();
+};
+function tgWidgetRender(){
+ const box=$('tgwrap');if(!box)return;
+ if(profX('kr_tg')){box.innerHTML='';return}
+ if(!ST.tg){box.innerHTML='';$('tgnote').textContent='Connexion Telegram non configurée : l\'admin doit enregistrer le pseudo du bot (onglet Admin).';return}
+ $('tgnote').textContent='';
+ if(box.dataset.bot===ST.tg)return;
+ box.innerHTML='';box.dataset.bot=ST.tg;
+ const s=document.createElement('script');s.src='https://telegram.org/js/telegram-widget.js?22';s.async=true;
+ s.setAttribute('data-telegram-login',ST.tg);s.setAttribute('data-size','large');
+ s.setAttribute('data-onauth','tgAuth(user)');s.setAttribute('data-request-access','write');
+ box.appendChild(s);
+}
+if(/[#&]oe=/.test(location.hash)){
+ try{sessionStorage.setItem('kr_t','con');sessionStorage.setItem('kr_oe',new URLSearchParams(location.hash.slice(1)).get('oe')||'1')}catch(e){}
+ history.replaceState(null,'',location.pathname);
+}
 if(location.hash.includes('error=')){try{sessionStorage.setItem('kr_t','con')}catch(e){}history.replaceState(null,'',location.pathname)}
 if(location.hash.includes('access_token')){
  const t=new URLSearchParams(location.hash.slice(1)).get('access_token');history.replaceState(null,'',location.pathname);
  if(t)fetch('https://discord.com/api/users/@me',{headers:{Authorization:'Bearer '+t}}).then(r=>r.json()).then(u=>{
   if(u.id){try{localStorage.setItem('kr_d',JSON.stringify({id:u.id,n:u.global_name||u.username,a:u.avatar||''}));sessionStorage.setItem('kr_t','con')}catch(e){}accRender()}}).catch(()=>{try{sessionStorage.setItem('kr_t','con')}catch(e){}});
 }
+// retour du worker après GitHub / Twitter / Roblox (le worker a échangé le code, jamais le navigateur)
+if(/[#&](gh|tw|rb)=/.test(location.hash)){
+ const hp=new URLSearchParams(location.hash.slice(1));
+ ['gh','tw','rb'].forEach(k=>{if(hp.has(k)){try{const j=JSON.parse(atob(hp.get(k)));localStorage.setItem('kr_'+k,JSON.stringify(j))}catch(e){}}});
+ try{sessionStorage.setItem('kr_t','con')}catch(e){}
+ history.replaceState(null,'',location.pathname);
+}
 $('obc').onclick=()=>{dis=ST.t;render()};
+try{const oe=sessionStorage.getItem('kr_oe');if(oe){sessionStorage.removeItem('kr_oe');
+ const label=({github:'GitHub',twitter:'Twitter / X',roblox:'Roblox'})[oe]||oe;
+ const m='La connexion a échoué ou a été refusée ('+label+'). Vérifie le Client ID, le Client Secret et la Redirect URI dans ton worker.';
+ const nid={github:'ghnote',twitter:'twnote',roblox:'rbnote'}[oe];setTimeout(()=>{if(nid&&$(nid))$(nid).textContent=m},50)}}catch(e){}
 // la diffusion ntfy garde 12 h : l'admin renvoie l'état tant que sa page est ouverte
 setInterval(()=>{if(ME&&ME.admin&&LM)fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM}).catch(()=>{})},5*3600*1000);
 if(window.crypto&&crypto.subtle){
