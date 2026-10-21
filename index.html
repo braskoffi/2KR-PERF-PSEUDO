@@ -137,6 +137,14 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <div class="card hot"><div class="k">Disponibles</div><div class="v" id="ra">0</div></div>
 <div class="card"><div class="k">Indisponibles</div><div class="v" id="rn">0</div></div>
 </div>
+<div class="card" style="margin-bottom:10px"><div class="k">Changer de pseudo</div>
+<label>Pseudo à utiliser</label>
+<input id="cin" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="32" placeholder="ex : kr7">
+<label>Ouvrir sur (plusieurs possibles)</label>
+<div id="cplats" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+<button class="btn" id="cgo">Changer le pseudo</button>
+<div class="note">Raccourci : Entrée dans la case du pseudo = même effet que le bouton.</div>
+<div class="note" id="cnote">Le pseudo est copié, puis la ou les pages choisies s'ouvrent : colle-le dans le champ du pseudo et valide, sur chacune.</div></div>
 <div class="two">
 <div class="card"><div class="k g">● Disponibles</div><div class="list" id="la"></div><button class="btn alt" id="cp">Copier la liste</button></div>
 <div class="card"><div class="k r">● Indisponibles</div><div class="list" id="lu"></div></div>
@@ -401,7 +409,7 @@ function paint(){
  $('sq').textContent=$('oq').textContent=q;$('sc').textContent=$('oc').textContent=c;$('sa').textContent=$('oa').textContent=av.length;$('ss').textContent=sp;
  $('rt').textContent=av.length+un.length+nv.length;$('ra').textContent=av.length;$('rn').textContent=un.length;
  const cl=CL[lastPlat||$('plat').value];
- $('la').innerHTML=av.map(x=>'<div class="g">'+esc(x)+' <a style="color:#e9a6ff;float:right" target="_blank" rel="noopener" href="'+cl+'">Réclamer ↗</a></div>').join('');
+ $('la').innerHTML=av.map(x=>'<div class="g">'+esc(x)+' <button class="cp" data-u="'+esc(x)+'" style="float:right;background:#140a22;border:1px solid var(--acc);color:#fff;border-radius:8px;padding:3px 9px;cursor:pointer;font:inherit;font-size:12px">Changer le pseudo</button></div>').join('');
  $('lu').innerHTML=un.slice(-300).reverse().map(x=>'<div class="r">'+esc(x)+'</div>').join('');
  $('lv').innerHTML=nv.slice(-100).reverse().map(x=>'<div style="color:#ffd37a">'+esc(x)+'</div>').join('');
  $('nvc').style.display=nv.length?'block':'none';
@@ -436,6 +444,36 @@ $('go').onclick=async()=>{
 };
 $('cp').onclick=()=>{try{navigator.clipboard.writeText(av.join('\n'));$('cp').textContent='Copié';setTimeout(()=>$('cp').textContent='Copier la liste',1500)}catch(e){}};
 $('clr').onclick=()=>{av=[];un=[];nv=[];seen.clear();c=0;save();paint()};
+// changer le pseudo : copie + ouvre la ou les pages choisies (aucun token demandé, rien n'est automatisé sur le compte)
+function cplatsInit(){
+ const box=$('cplats');if(!box||box.children.length)return;
+ Object.keys(CL).forEach(name=>{
+  const id='cpl_'+name.replace(/[^a-z0-9]/gi,'');
+  const lab=document.createElement('label');
+  lab.style.cssText='display:flex;align-items:center;gap:5px;background:#140a22;border:1px solid var(--line);border-radius:8px;padding:5px 9px;margin:0;font-size:12px;color:var(--tx);cursor:pointer';
+  lab.innerHTML='<input type="checkbox" id="'+id+'" value="'+esc(name)+'" style="width:auto;accent-color:var(--acc)"> '+esc(name);
+  box.appendChild(lab);
+ });
+}
+function cplatsChecked(){
+ const cb=[...document.querySelectorAll('#cplats input:checked')].map(i=>i.value);
+ if(cb.length)return cb;
+ const def=lastPlat||$('plat').value;return CL[def]?[def]:[];
+}
+async function chg(u,plats){
+ u=(u||'').trim();if(!u){$('cnote').textContent='Écris un pseudo dans la case.';return}
+ plats=plats&&plats.length?plats:cplatsChecked();
+ if(!plats.length){$('cnote').textContent='Choisis au moins une plateforme à ouvrir.';return}
+ let ok=false;try{await navigator.clipboard.writeText(u);ok=true}catch(e){}
+ $('cin').value=u;
+ plats.forEach(p=>{if(CL[p])window.open(CL[p],'_blank','noopener')});
+ const liste=plats.join(', ');
+ $('cnote').textContent=(ok?'« '+u+' » copié. ':'Copie « '+u+' » à la main. ')+'Colle-le dans le champ pseudo sur chaque page ouverte ('+liste+'), puis valide.';
+}
+$('cgo').onclick=()=>chg($('cin').value);
+$('cin').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();chg($('cin').value)}};
+$('la').onclick=e=>{const b=e.target.closest('.cp');if(b)chg(b.dataset.u,[lastPlat||$('plat').value])};
+cplatsInit();
 paint();
 
 async function measure(){
