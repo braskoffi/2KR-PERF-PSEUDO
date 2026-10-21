@@ -16,8 +16,20 @@ Dépose le contenu du dossier, puis :
 - Téléphone : menu du navigateur > « Ajouter à l'écran d'accueil ».
 
 Vérification des pseudos
-Le site génère les pseudos. Pour les vérifier, branche un serveur dans
-l'onglet « Connexion » : il reçoit ?u=pseudo&p=plateforme et répond
-{"available":true} ou {"available":false}.
+Onglet « Connexion » (ou en bas de « Résultats ») : deux méthodes.
+- Directe : le site interroge Discord (ou GitHub) depuis ton navigateur.
+  Si le navigateur bloque la requête (CORS), passe par ton serveur.
+- Mon serveur : colle l'URL de ton serveur. Il reçoit ?u=pseudo&p=plateforme
+  et répond {"available":true} ou {"available":false}.
+  Ce n'est PAS un lien d'invitation Discord (discord.gg/...).
+
+Déployer le serveur (gratuit)
+1. Compte Cloudflare > Workers & Pages > Create Worker.
+2. Colle le contenu de worker.js, puis Deploy.
+3. Copie l'URL https://xxx.workers.dev et colle-la dans « Mon serveur ».
+4. Clique sur « Tester la connexion ».
+
+Discord limite le nombre de vérifications : le site met le scan en pause
+automatiquement quand la limite est atteinte. Garde la vitesse Normale ou Lente.
 
 Discord : https://discord.gg/4Sr4AvRahb

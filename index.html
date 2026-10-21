@@ -123,7 +123,7 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <option value="3l">3 lettres</option><option value="4l">4 lettres</option><option value="5l">5 lettres</option><option value="s3">Semi 3L</option><option value="4n">4 chiffres</option><option value="4c">4 caractères</option><option value="5c">5 caractères</option><option value="5n">5 chiffres</option><option value="pt">Mots portugais</option><option value="en">Mots anglais</option><option value="rp">Motifs répétés</option><option value="cu">Liste perso</option></select></div>
 </div>
 <textarea id="cust" placeholder="Un pseudo par ligne"></textarea>
-<label>03 · Vitesse</label><select id="spd"><option value="400">Lente</option><option value="150" selected>Normale</option><option value="50">Rapide</option></select>
+<label>03 · Vitesse</label><select id="spd"><option value="1500">Lente</option><option value="700" selected>Normale</option><option value="250">Rapide</option></select>
 <button class="btn" id="go">Lancer le scan</button>
 <div class="note" id="bn"></div>
 </div>
@@ -132,10 +132,26 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <section id="res">
 <div class="mono">Espace / Résultats</div>
 <h1>Your findings</h1><p class="sub">Les pseudos qui sont passés.</p>
+<div class="grid" style="margin-top:0">
+<div class="card"><div class="k">Essayés</div><div class="v" id="rt">0</div></div>
+<div class="card hot"><div class="k">Disponibles</div><div class="v" id="ra">0</div></div>
+<div class="card"><div class="k">Indisponibles</div><div class="v" id="rn">0</div></div>
+</div>
 <div class="two">
 <div class="card"><div class="k g">● Disponibles</div><div class="list" id="la"></div><button class="btn alt" id="cp">Copier la liste</button></div>
 <div class="card"><div class="k r">● Indisponibles</div><div class="list" id="lu"></div></div>
 </div>
+<div class="card" id="nvc" style="display:none;margin-top:10px"><div class="k" style="color:#ffd37a">● Non vérifiés</div><div class="list" id="lv"></div></div>
+<div class="card" style="margin-top:10px"><div class="k">Mon serveur</div>
+<label>Méthode de vérification</label>
+<select class="vm"><option value="direct">Directe (Discord / GitHub)</option><option value="server">Mon serveur</option></select>
+<div class="vw" style="display:none"><label>URL de ton serveur de vérification</label>
+<input class="va" type="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://mon-worker.workers.dev/">
+<div class="note">Ce n'est <b>pas</b> un lien d'invitation Discord. Le serveur reçoit <code>?u=pseudo&amp;p=plateforme</code> et répond {"available":true} ou {"available":false}. Un modèle prêt à déployer est fourni dans <code>worker.js</code>. Tu peux aussi mettre <code>{u}</code> dans l'URL.</div></div>
+<button class="btn alt vt">Tester la connexion</button>
+<div class="note vs"></div>
+</div>
+<button class="btn alt" id="clr">Vider les résultats</button>
 <div class="note">Les résultats restent dans cette session.</div>
 </section>
 
@@ -156,9 +172,13 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <button class="btn" id="dlog">Se connecter avec Discord</button>
 <div class="note" id="dnote"></div></div>
 <div class="card">
-<label>URL de ton serveur de vérification</label>
-<input id="api" placeholder="https://mon-serveur.exemple/check?u=">
-<div class="note">Le serveur reçoit le pseudo (u) et la plateforme (p), et répond {"available":true} ou {"available":false}. Sans serveur, les pseudos sont générés mais pas vérifiés.</div>
+<label>Méthode de vérification</label>
+<select class="vm"><option value="direct">Directe (Discord / GitHub)</option><option value="server">Mon serveur</option></select>
+<div class="vw" style="display:none"><label>URL de ton serveur de vérification</label>
+<input class="va" type="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://mon-worker.workers.dev/">
+<div class="note">Ce n'est <b>pas</b> un lien d'invitation Discord. Le serveur reçoit <code>?u=pseudo&amp;p=plateforme</code> et répond {"available":true} ou {"available":false}. Un modèle prêt à déployer est fourni dans <code>worker.js</code>. Tu peux aussi mettre <code>{u}</code> dans l'URL.</div></div>
+<button class="btn alt vt">Tester la connexion</button>
+<div class="note vs"></div>
 </div>
 </section>
 
@@ -312,37 +332,108 @@ function gen(f){
  if(f==='rp'){const a=r(L),b=r(L);return r([a+a+b+b,a+b+a+b,a+a+a,a+b+b+a,a+a+a+a])}
  if(f==='cu'){if(!pool.length)return null;const u=pool[pi%pool.length];pi++;return u}
 }
-let run=false,q=0,c=0,av=[],un=[],seen=new Set(),t0=0;
-function log(m){const d=document.createElement('div');d.textContent=m;const l=$('log');if(l.firstChild&&l.firstChild.style)l.innerHTML='';l.prepend(d);while(l.children.length>60)l.lastChild.remove()}
-function paint(){
- const sp=(c/Math.max(1,(Date.now()-t0)/1000)).toFixed(1)+'/s';
- $('sq').textContent=$('oq').textContent=q;$('sc').textContent=$('oc').textContent=c;$('sa').textContent=$('oa').textContent=av.length;$('ss').textContent=sp;
- const CL={'Discord':'https://discord.com/channels/@me','Twitter / X':'https://x.com/settings/screen_name','Telegram':'https://web.telegram.org','GitHub':'https://github.com/settings/admin','Roblox':'https://www.roblox.com/my/account','Instagram':'https://www.instagram.com/accounts/edit/','TikTok':'https://www.tiktok.com/setting'};
- $('la').innerHTML=av.map(x=>'<div class="g">'+x+' <a style="color:#e9a6ff;float:right" target="_blank" rel="noopener" href="'+CL[$('plat').value]+'">Réclamer ↗</a></div>').join('');
- $('lu').innerHTML=un.slice(-150).map(x=>'<div class="r">'+x+'</div>').join('');
+let run=false,q=0,c=0,d=0,av=[],un=[],nv=[],seen=new Set(),t0=0,lastPlat='';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=x=>String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+try{const s=JSON.parse(sessionStorage.getItem('kr_res')||'null');if(s){av=s.av||[];un=s.un||[];nv=s.nv||[];lastPlat=s.p||'';c=av.length+un.length;[...av,...un,...nv].forEach(x=>seen.add(x))}}catch(e){}
+const save=()=>{try{sessionStorage.setItem('kr_res',JSON.stringify({av,un,nv,p:lastPlat}))}catch(e){}};
+function log(m){const e=document.createElement('div');e.textContent=m;const l=$('log');if(l.firstChild&&l.firstChild.style)l.innerHTML='';l.prepend(e);while(l.children.length>60)l.lastChild.remove()}
+
+// vérification : directe ou via ton serveur
+let VM='direct',VA='';
+try{VM=localStorage.getItem('kr_mode')||'direct';VA=localStorage.getItem('kr_api')||''}catch(e){}
+const vstat=t=>document.querySelectorAll('.vs').forEach(e=>e.textContent=t);
+function vsync(){
+ document.querySelectorAll('.vm').forEach(e=>e.value=VM);
+ document.querySelectorAll('.va').forEach(e=>{if(e!==document.activeElement)e.value=VA});
+ document.querySelectorAll('.vw').forEach(e=>e.style.display=VM==='server'?'block':'none');
 }
+document.querySelectorAll('.vm').forEach(e=>e.onchange=()=>{VM=e.value;try{localStorage.setItem('kr_mode',VM)}catch(_){}vsync();vstat('')});
+document.querySelectorAll('.va').forEach(e=>e.oninput=()=>{VA=e.value.trim();try{localStorage.setItem('kr_api',VA)}catch(_){}vsync()});
+vsync();
+const netMsg=()=>VM==='server'?'Impossible de joindre ton serveur (URL, https ou CORS).':'Le navigateur bloque la requête directe. Choisis « Mon serveur » et déploie worker.js.';
+
 async function check(u){
- const api=$('api').value.trim();if(!api)return null;
- try{const res=await fetch(api+encodeURIComponent(u)+'&p='+encodeURIComponent($('plat').value));return !!(await res.json()).available}catch(e){return null}
+ const plat=$('plat').value;
+ try{
+  if(VM==='server'){
+   if(!VA)return{e:'Aucun serveur renseigné.',fatal:1};
+   let url;try{url=new URL(VA.replace('{u}',encodeURIComponent(u)))}catch(_){return{e:'URL du serveur invalide.',fatal:1}}
+   if(/(^|\.)discord\.gg$/.test(url.hostname)||url.pathname.startsWith('/invite'))return{e:'Ce lien est une invitation Discord, pas un serveur de vérification.',fatal:1};
+   if(!VA.includes('{u}'))url.searchParams.set('u',u);
+   url.searchParams.set('p',plat);
+   const res=await fetch(url);
+   if(res.status===429)return{w:+res.headers.get('retry-after')||10};
+   const j=await res.json();
+   if(typeof j.available==='boolean')return{ok:j.available};
+   return{e:j.error||'Réponse inattendue du serveur.'};
+  }
+  if(plat==='Discord'){
+   const res=await fetch('https://discord.com/api/v9/unique-username/username-attempt-unauthed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u})});
+   if(res.status===429){const j=await res.json().catch(()=>({}));return{w:Math.ceil(j.retry_after||10)}}
+   if(res.status===400)return{ok:false};
+   const j=await res.json();
+   if(typeof j.taken==='boolean')return{ok:!j.taken};
+   return{e:j.message||'Réponse inattendue de Discord ('+res.status+').'};
+  }
+  if(plat==='GitHub'){
+   const res=await fetch('https://api.github.com/users/'+encodeURIComponent(u));
+   if(res.status===404)return{ok:true};if(res.status===200)return{ok:false};
+   if(res.status===403||res.status===429)return{w:60};
+   return{e:'Réponse inattendue de GitHub ('+res.status+').'};
+  }
+  return{e:'Cette plateforme demande « Mon serveur » (Connexion).',fatal:1};
+ }catch(err){return{net:1}}
+}
+document.querySelectorAll('.vt').forEach(b=>b.onclick=async()=>{
+ vstat('Test en cours…');const r=await check('kr'+Math.random().toString(36).slice(2,8));
+ if('ok' in r)vstat('Connexion OK ✓ ('+(VM==='server'?'ton serveur':'directe')+')');
+ else if(r.w)vstat('Connecté, mais limite atteinte ('+r.w+' s). Ralentis le scan.');
+ else vstat(r.net?netMsg():r.e);
+});
+
+const CL={'Discord':'https://discord.com/channels/@me','Twitter / X':'https://x.com/settings/screen_name','Telegram':'https://web.telegram.org','GitHub':'https://github.com/settings/admin','Roblox':'https://www.roblox.com/my/account','Instagram':'https://www.instagram.com/accounts/edit/','TikTok':'https://www.tiktok.com/setting'};
+function paint(){
+ const sp=(d/Math.max(1,(Date.now()-t0)/1000)).toFixed(1)+'/s';
+ $('sq').textContent=$('oq').textContent=q;$('sc').textContent=$('oc').textContent=c;$('sa').textContent=$('oa').textContent=av.length;$('ss').textContent=sp;
+ $('rt').textContent=av.length+un.length+nv.length;$('ra').textContent=av.length;$('rn').textContent=un.length;
+ const cl=CL[lastPlat||$('plat').value];
+ $('la').innerHTML=av.map(x=>'<div class="g">'+esc(x)+' <a style="color:#e9a6ff;float:right" target="_blank" rel="noopener" href="'+cl+'">Réclamer ↗</a></div>').join('');
+ $('lu').innerHTML=un.slice(-300).reverse().map(x=>'<div class="r">'+esc(x)+'</div>').join('');
+ $('lv').innerHTML=nv.slice(-100).reverse().map(x=>'<div style="color:#ffd37a">'+esc(x)+'</div>').join('');
+ $('nvc').style.display=nv.length?'block':'none';
 }
 $('go').onclick=async()=>{
  if(run){run=false;$('go').textContent='Lancer le scan';return}
+ const plat=$('plat').value;
  pool=$('cust').value.split('\n').map(s=>s.trim()).filter(Boolean);pi=0;
  if($('fmt').value==='cu'&&!pool.length){$('bn').textContent='Ajoute au moins un pseudo dans ta liste.';return}
- run=true;$('go').textContent='Arrêter';q=c=0;av=[];un=[];seen.clear();t0=Date.now();$('bn').textContent='';
- log('Scan '+$('plat').value+' démarré.');
+ if(lastPlat!==plat){av=[];un=[];nv=[];seen.clear();lastPlat=plat;c=0}
+ run=true;$('go').textContent='Arrêter';q=0;d=0;t0=Date.now();$('bn').textContent='';
+ log('Scan '+plat+' démarré ('+(VM==='server'?'via ton serveur':'vérification directe')+').');
+ let errs=0;
  while(run){
-  let u,t=0;do{u=gen($('fmt').value);t++}while(u&&seen.has(u)&&t<60);
+  let u,t=0;do{u=gen($('fmt').value);if(u&&plat==='Discord')u=u.toLowerCase();t++}while(u&&seen.has(u)&&t<60);
   if(!u||seen.has(u)){log('Plus de pseudos à tester.');break}
   seen.add(u);q++;paint();
-  const ok=await check(u);c++;
-  if(ok===null){$('bn').textContent='Aucun serveur configuré (Connexion) : pseudos générés mais non vérifiés.';log(u+' · non vérifié')}
-  else{(ok?av:un).push(u);log(u+(ok?' · disponible':' · pris'))}
-  q--;paint();await new Promise(s=>setTimeout(s,+$('spd').value));
+  let r;
+  while(run){r=await check(u);if(!r.w)break;
+   log('Limite atteinte, pause '+r.w+' s');
+   for(let s=r.w;s>0&&run;s--){$('bn').textContent='Limite atteinte, pause '+s+' s…';await sleep(1000)}
+   $('bn').textContent=''}
+  q--;
+  if(!run){seen.delete(u);paint();break}
+  d++;
+  if('ok' in r){errs=0;(r.ok?av:un).push(u);c++;log(u+(r.ok?' · disponible':' · pris'))}
+  else{nv.push(u);errs++;const m=r.net?netMsg():r.e;$('bn').textContent=m;log(u+' · non vérifié');
+   if(r.fatal||errs>=3){log('Scan arrêté : '+m);break}}
+  save();paint();await sleep(+$('spd').value);
  }
- run=false;$('go').textContent='Lancer le scan';
+ run=false;$('go').textContent='Lancer le scan';save();paint();
 };
-$('cp').onclick=()=>{try{navigator.clipboard.writeText(av.join('\n'));$('cp').textContent='Copié'}catch(e){}};
+$('cp').onclick=()=>{try{navigator.clipboard.writeText(av.join('\n'));$('cp').textContent='Copié';setTimeout(()=>$('cp').textContent='Copier la liste',1500)}catch(e){}};
+$('clr').onclick=()=>{av=[];un=[];nv=[];seen.clear();c=0;save();paint()};
+paint();
 
 async function measure(){
  const cores=navigator.hardwareConcurrency||'?',mem=navigator.deviceMemory||null;
