@@ -135,3 +135,12 @@ Les clés classiques (6 chiffres) marchent toujours : on y ajoute juste un pseud
 - Réservé à l'admin principal (clé de 10 chiffres, seule à pouvoir signer les réglages) : texte en gros, verrouillage, serveur, Client ID, révocation des clés 1 à 10.
 - Un admin délégué ne peut pas retirer le rôle, supprimer, ni voir/révoquer la clé d'un autre admin ; seul l'admin principal le peut.
 - Redéploie worker.js (les routes admin acceptent maintenant les admins délégués).
+
+
+=== Application + jeu Pseudo Rush ===
+- IA > « Application » : page de téléchargement (installation en appli, ou fichier .html hors-ligne). IA > « Jeu » : Pseudo Rush.
+- sw.js est maintenant un vrai service worker (cache hors-ligne) : redépose-le avec index.html et manifest.json.
+- Jeu : points cumulés par pseudo. 50 000 pts = VIP automatique, 250 000 pts = Modérateur. Le jeu ne donne JAMAIS le rôle Admin et ne touche pas aux rôles Admin / Bloqué.
+- Classement mondial actualisé toutes les 5 s (le site interroge le worker). Il faut un compte pseudo + clé de 8 chiffres et le worker avec le KV « KR ». REDÉPLOIE worker.js.
+- Anti-triche : session signée, une soumission par partie, plafond de points par seconde. Le score est calculé dans le navigateur : ce n'est pas inviolable, surveille le Journal (admin) quand quelqu'un devient VIP / Modérateur par le jeu.
+- Limite KV gratuite : 1000 écritures/jour, chaque partie enregistrée en fait 2 (~500 parties/jour).

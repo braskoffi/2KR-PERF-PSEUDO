@@ -8,9 +8,9 @@
 <link rel="icon" href="icon.svg">
 <meta name="theme-color" content="#050308">
 <style>
-:root{--bg:#050308;--card:#0c0714;--line:#4a1d7a;--tx:#f5f0ff;--mut:#9a8bb5;--acc:#c04dff;--glow:0 0 12px rgba(192,77,255,.45);--paint:#b03cf0;--g1:#a020f0;--g2:#e040fb;--h1:#3a0c66;--h2:#6a1bb0;--card2:var(--card2);--inp:#05030a;--fs:1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#050308;--card:#0c0714;--line:#4a1d7a;--tx:#f5f0ff;--mut:#9a8bb5;--acc:#c04dff;--glow:0 0 12px rgba(192,77,255,.45);--paint:#b03cf0;--g1:#a020f0;--g2:#e040fb;--h1:#3a0c66;--h2:#6a1bb0;--card2:#150c24;--inp:#05030a;--fs:1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#050308}}
-:root[data-theme="light"]{--bg:#f4f1fa;--card:#ffffff;--line:#d8c6ef;--tx:#231433;--mut:#6b5e80;--acc:#9020d8;--glow:0 0 10px rgba(144,32,216,.2);--paint:#a54af0;--inp:#fff}
+--card2:#efe6fb;:root[data-theme="light"]{--card2:#efe6fb;--bg:#f4f1fa;--card:#ffffff;--line:#d8c6ef;--tx:#231433;--mut:#6b5e80;--acc:#9020d8;--glow:0 0 10px rgba(144,32,216,.2);--paint:#a54af0;--inp:#fff}
 *{box-sizing:border-box}html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
 .mono{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:2px;color:var(--acc);text-transform:uppercase}
@@ -57,13 +57,13 @@ section{display:none}section.on{display:block}
 #ck{display:block;font:700 18px ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
 #cd{display:block;font-size:10px;color:var(--mut);text-transform:capitalize}
 body.dg .mo-only{display:none!important}.dg-only{display:none}body.dg .dg-only{display:block}
-#menu{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 62px);width:min(250px,calc(100vw - 20px));z-index:24;display:none}
+#menu{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 62px);width:min(190px,calc(100vw - 20px));z-index:24;display:none}
 #menu.on{display:block}
 #menu .goo{position:absolute;inset:0;filter:url(#gooF);z-index:1;pointer-events:none}
-#items{position:relative;z-index:2;padding:12px 0 8px 34px;display:flex;flex-direction:column;gap:14px}
-.mi{height:42px;flex:none;display:flex;align-items:center;padding:0 16px;border:0;background:none;color:#fff;font:600 14px system-ui,sans-serif;text-align:left;cursor:pointer;text-decoration:none;opacity:0;transition:opacity .25s}
+#items{position:relative;z-index:2;padding:8px 0 6px 28px;display:flex;flex-direction:column;gap:6px}
+.mi{height:32px;flex:none;display:flex;align-items:center;padding:0 12px;border:0;background:none;color:#fff;font:600 13px system-ui,sans-serif;text-align:left;cursor:pointer;text-decoration:none;opacity:0;transition:opacity .25s}
 .mi.shown{opacity:1}.mi.on{text-decoration:underline;text-underline-offset:4px}
-#water{position:fixed;left:0;top:calc(env(safe-area-inset-top,0px) + 56px);bottom:0;width:calc(min(250px,100vw - 20px) + 20px);overflow:hidden;z-index:3;pointer-events:none}
+#water{position:fixed;left:0;top:calc(env(safe-area-inset-top,0px) + 56px);bottom:0;width:calc(min(190px,100vw - 20px) + 20px);overflow:hidden;z-index:3;pointer-events:none}
 #water i{position:absolute;width:3px;border-radius:3px;background:linear-gradient(#d4efff,#3d9bff)}
 #water .wave{position:absolute;inset:0;background:linear-gradient(180deg,rgba(61,155,255,0),rgba(61,155,255,.5) 65%,rgba(200,236,255,.9))}
 main{padding-top:72px}
@@ -81,13 +81,16 @@ main{padding-top:72px}
 :root[data-theme="gold"]{--bg:#090703;--card:#15110a;--line:#7a6a1d;--tx:#fffbe8;--mut:#bfb48a;--acc:#ffd23d;--glow:0 0 12px rgba(255,210,61,.4);--paint:#f0be2f;--g1:#a87c0a;--g2:#d9a514;--h1:#5a4a0a;--h2:#b89a1a;--card2:#1d170a;--inp:#060502}
 :root[data-theme="mono"]{--bg:#000;--card:#0a0a0a;--line:#3a3a3a;--tx:#fff;--mut:#9a9a9a;--acc:#fff;--glow:0 0 12px rgba(255,255,255,.4);--paint:#8a8a8a;--g1:#333;--g2:#777;--h1:#1a1a1a;--h2:#444;--card2:#141414;--inp:#050505}
 :root.noglow{--glow:none!important}main{zoom:var(--fs,1);transition:transform .55s cubic-bezier(.3,1.25,.4,1),opacity .4s;transform-origin:left top}
-#app{overflow:hidden}#app.mo main{transform:translateX(calc(min(250px,100vw - 20px) + 12px)) scale(.94);opacity:.5;pointer-events:none}
+#app{overflow:hidden}#app.mo main{transform:translateX(calc(min(190px,100vw - 20px) + 12px)) scale(.94);opacity:.5;pointer-events:none}
 .stb{background:var(--card2);border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:9px;font:inherit;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
 .stb.on{border-color:var(--acc);box-shadow:var(--glow)}.stb i{width:14px;height:14px;border-radius:50%;flex:none}
 #st .card{max-height:88vh;overflow:auto}
 .drw{max-height:0;overflow:hidden;transition:max-height .5s ease}.drw.on{max-height:3000px}
 .ur{padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer;background:var(--card2)}
 .ud{display:none;font-size:13px;color:var(--mut);margin-top:8px;line-height:1.7}.ur.on .ud{display:block}.ud .btn{margin-top:8px}
+#gwrap{position:relative;max-width:420px;margin:0 auto}#gcv{width:100%;display:block;border:1px solid var(--line);border-radius:14px;touch-action:none;background:#07040d}
+#gplay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(5,3,8,.84);border-radius:14px;text-align:center;padding:16px}#gplay .btn{max-width:220px}
+#ghud{text-align:center;font:700 14px ui-monospace,Menlo,monospace;margin:8px 0}
 </style>
 </head>
 <body>
@@ -120,7 +123,7 @@ main{padding-top:72px}
 <svg width="0" height="0" style="position:absolute"><defs><filter id="gooF"><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter></defs></svg>
 <header id="top"><button id="burger" aria-label="Menu" aria-expanded="false"><i></i><i></i><i></i></button><div id="clock"><b id="ck">--:--:--</b><span id="cd"></span></div></header>
 <div id="menu"><div class="goo" id="goo"></div><div id="items">
-<button class="mi on" data-t="ov">Aperçu</button><button class="mi" data-t="scan">Scan</button><button class="mi" data-t="res">Résultats</button><button class="mi" data-t="perf">Perf</button><button class="mi" data-t="rk">🏆 Classement</button><button class="mi" data-t="botx">🤖 Bot Discord</button><button class="mi" data-t="con">Connexion</button><button class="mi" data-t="ia">IA</button><button class="mi" data-t="adm" id="nadm" style="display:none">Admin</button><button class="mi" id="langBtn">🌐 Langue</button><button class="mi" id="logoutBtn">🚪 Déconnexion</button><button class="mi" id="themeBtn">🎨 Réglages</button><a class="mi" href="https://discord.gg/Uxc4mj9tS9" target="_blank" rel="noopener">Discord ↗</a>
+<button class="mi on" data-t="ov">Aperçu</button><button class="mi" data-t="scan">Scan</button><button class="mi" data-t="res">Résultats</button><button class="mi" data-t="perf">Perf</button><button class="mi" data-t="rk">🏆 Classement</button><button class="mi" data-t="botx">🤖 Bot Discord</button><button class="mi" data-t="con">Connexion</button><button class="mi" data-t="ia">IA</button><button class="mi" data-t="dl" style="display:none"></button><button class="mi" data-t="game" style="display:none"></button><button class="mi" data-t="adm" id="nadm" style="display:none">Admin</button><button class="mi" id="langBtn">🌐 Langue</button><button class="mi" id="logoutBtn">🚪 Déconnexion</button><button class="mi" id="themeBtn">🎨 Réglages</button><a class="mi" href="https://discord.gg/Uxc4mj9tS9" target="_blank" rel="noopener">Discord ↗</a>
 </div><div id="water"></div></div>
 <main>
 
@@ -267,7 +270,7 @@ main{padding-top:72px}
 
 <section id="ia">
 <div class="mono">Espace / IA</div>
-<h1>Créateur</h1><p class="sub">Choisis une catégorie, puis un modèle. Tu obtiens tout de suite un fichier complet et fonctionnel à tester ou à télécharger, puis à modifier comme tu veux.</p>
+<h1>Créateur</h1><p class="sub">Application : télécharge le site comme une vraie appli. Jeu : joue en ligne, gagne des points et monte au classement mondial.</p>
 <div class="two" style="margin-bottom:14px">
 <button class="btn" id="iaCatApp">Application</button>
 <button class="btn alt" id="iaCatGame">Jeu</button>
@@ -342,6 +345,22 @@ main{padding-top:72px}
 <div class="note" id="ast"></div><div class="note" id="asy">Temps réel : connexion…</div>
 </section>
 
+<section id="dl"><div class="mono">Espace / IA / Application</div><h1>Télécharger l'appli</h1>
+<p class="sub">Le site complet, installé sur ton appareil comme une vraie application, avec son icône, en plein écran et utilisable hors-ligne.</p>
+<div class="card"><button class="btn" id="dlInst">Installer l'application</button>
+<button class="btn alt" id="dlHtml">Télécharger le site (.html)</button><div class="note" id="dlN"></div></div>
+<div class="card" style="margin-top:12px"><div class="k">Si le bouton ne propose rien</div>
+<div class="note">Android (Chrome) : menu ⋮ puis « Installer l'application ».<br>iPhone / iPad (Safari) : Partager puis « Sur l'écran d'accueil ».<br>PC (Chrome / Edge) : icône « Installer » dans la barre d'adresse.<br>L'installation demande que le site soit en ligne en https (voir LISEZMOI).</div></div>
+<button class="btn alt" onclick="go('ia')">← Retour</button></section>
+<section id="game"><div class="mono">Espace / IA / Jeu</div><h1>Pseudo Rush</h1>
+<p class="sub">Déplace la barre : attrape les pseudos « libre », évite les « pris ». ⚡ double les points, 🛡 bloque un « pris », ❄ ralentit.</p>
+<div id="ghud">Prêt ?</div><div id="gwrap"><canvas id="gcv" width="360" height="520"></canvas>
+<div id="gplay"><div class="mono">3 vies · combo jusqu'à x8</div><button class="btn" id="gbtn">Jouer</button></div></div>
+<div class="note" id="gmsg" style="text-align:center"></div>
+<div class="card" style="margin-top:12px"><div class="k">Ma progression</div><div class="v" id="gme">0 pts</div><div class="bar"><i id="gbar"></i></div>
+<div class="note">50 000 pts : VIP automatique. 250 000 pts : Modérateur. Le rôle Admin ne s'obtient jamais avec le jeu.</div></div>
+<div class="card" style="margin-top:12px"><div class="k">🌍 Classement mondial (actualisé toutes les 5 s)</div><div id="gtop" style="margin-top:8px"></div></div>
+<button class="btn alt" onclick="go('ia')">← Retour</button></section>
 </main>
 </div>
 
@@ -362,7 +381,7 @@ function saveOpt(){try{localStorage.setItem('kr_opt',JSON.stringify(OPT))}catch(
 applyOpt();
 $('themeBtn').onclick=()=>{closeMenu();stDraw();$('st').classList.add('on')};
 function go(t){document.querySelectorAll('.mi[data-t],section').forEach(e=>e.classList.remove('on'));
- document.querySelector('.mi[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure();if(t==='rk')loadTop()}
+ document.querySelector('.mi[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure();if(t==='rk')loadTop();if(t==='game')gOn()}
 document.querySelectorAll('.mi[data-t]').forEach(b=>b.onclick=()=>{go(b.dataset.t);closeMenu()});
 function tick(){clearTimeout(TK);const n=new Date();$('ck').textContent=n.toLocaleTimeString('fr-FR',{hour12:!!OPT.h12,hour:'2-digit',minute:'2-digit',second:OPT.sec?'2-digit':undefined});
  $('cd').style.display=OPT.date?'':'none';$('cd').textContent=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});TK=setTimeout(tick,1000-n.getMilliseconds()+5)}tick();
@@ -1109,6 +1128,51 @@ async function measure(){
 }
 $('rf').onclick=measure;
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ===== Application (page de téléchargement) =====
+let DI=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();DI=e});
+$('iaCatApp').onclick=()=>go('dl');$('iaCatGame').onclick=()=>go('game');
+$('dlInst').onclick=async()=>{if(DI){DI.prompt();await DI.userChoice;DI=null;$('dlN').textContent='Installation lancée.'}else $('dlN').textContent='Ton navigateur ne propose pas l\u2019installation ici : suis les étapes ci-dessous (le site doit être en https).'};
+$('dlHtml').onclick=async()=>{let t;try{t=await fetch(location.href).then(r=>r.text())}catch(e){t='<!DOCTYPE html>\n'+document.documentElement.outerHTML}
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/html'}));a.download='2KR-PERF-PSEUDO.html';a.click();$('dlN').textContent='Fichier téléchargé. Il marche hors-ligne, mais le classement et les comptes demandent internet.'};
+// ===== Jeu : Pseudo Rush =====
+const GW=360,GH=520,GPW=70;let gRun=0,gS,gRaf,gSid=null,gSig=null,gTot=0;
+const gf=n=>(+n||0).toLocaleString('fr-FR'),gm=c=>Math.min(8,1+(c/5|0));
+function gOn(){gTop()}
+$('gcv').addEventListener('pointermove',e=>{if(!gS)return;const r=$('gcv').getBoundingClientRect();gS.x=Math.max(GPW/2,Math.min(GW-GPW/2,(e.clientX-r.left)/r.width*GW))});
+addEventListener('keydown',e=>{if(!gRun)return;if(e.key==='ArrowLeft')gS.x=Math.max(GPW/2,gS.x-30);if(e.key==='ArrowRight')gS.x=Math.min(GW-GPW/2,gS.x+30)});
+$('gbtn').onclick=async()=>{$('gmsg').textContent='';gSid=gSig=null;
+ if(typeof ME!=='undefined'&&ME&&ME.srv&&srv()){const r=await srvReq('POST','/api/game/start',{k:ME.k,pseudo:ME.pseudo});if(r.ok){gSid=r.j.sid;gSig=r.j.sig}}
+ gS={sc:0,life:3,combo:0,t:0,items:[],sp:0,x:GW/2,x2:0,sh:0,sl:0,last:performance.now()};gRun=1;$('gplay').style.display='none';gRaf=requestAnimationFrame(gLoop)};
+function gLoop(now){if(!gRun)return;const dt=Math.min(.05,(now-gS.last)/1000);gS.last=now;gS.t+=dt;
+ const lv=Math.min(1,gS.t/120),sl=gS.sl>0?.55:1;gS.sp-=dt;
+ if(gS.sp<=0){gS.sp=.95-.6*lv;const r=Math.random(),ty=r<.62?'ok':r<.88?'no':r<.92?'x2':r<.96?'sh':'sl';gS.items.push({ty,x:30+Math.random()*(GW-60),y:-20,v:(140+280*lv)*(.9+Math.random()*.25)})}
+ gS.x2-=dt;gS.sl-=dt;
+ for(const it of gS.items){it.y+=it.v*sl*dt;
+  if(it.y>GH-56&&it.y<GH-22&&Math.abs(it.x-gS.x)<GPW/2+14){it.d=1;gHit(it)}else if(it.y>GH+20){it.d=1;if(it.ty==='ok')gS.combo=0}}
+ gS.items=gS.items.filter(i=>!i.d);gDraw();if(gS.life<=0)return gOver();gRaf=requestAnimationFrame(gLoop)}
+function gHit(it){if(it.ty==='ok'){gS.combo++;gS.sc+=10*gm(gS.combo)*(gS.x2>0?2:1)}
+ else if(it.ty==='no'){if(gS.sh>0)gS.sh=0;else{gS.life--;gS.combo=0}}
+ else if(it.ty==='x2')gS.x2=8;else if(it.ty==='sh')gS.sh=1;else gS.sl=6}
+function gDraw(){const c=$('gcv').getContext('2d');c.fillStyle='#07040d';c.fillRect(0,0,GW,GH);c.textAlign='center';c.font='bold 13px system-ui';
+ const C={ok:['#3ddc84','libre'],no:['#ff3d4a','pris'],x2:['#ffd23d','⚡ x2'],sh:['#3da8ff','🛡'],sl:['#9be7ff','❄']};
+ for(const it of gS.items){const k=C[it.ty];c.fillStyle=k[0];c.beginPath();c.roundRect(it.x-26,it.y-14,52,28,9);c.fill();c.fillStyle='#000';c.fillText(k[1],it.x,it.y+4)}
+ c.fillStyle='#c04dff';c.shadowColor='#c04dff';c.shadowBlur=14;c.beginPath();c.roundRect(gS.x-GPW/2,GH-40,GPW,14,7);c.fill();c.shadowBlur=0;
+ if(gS.sh>0){c.strokeStyle='#3da8ff';c.lineWidth=3;c.beginPath();c.roundRect(gS.x-GPW/2-5,GH-45,GPW+10,24,11);c.stroke()}
+ $('ghud').textContent='❤'.repeat(Math.max(0,gS.life))+' · '+gf(gS.sc)+' pts · x'+gm(gS.combo)+(gS.x2>0?' · ⚡'+Math.ceil(gS.x2)+'s':'')+(gS.sl>0?' · ❄':'')}
+async function gOver(){gRun=0;const sc=gS.sc,dur=Math.round(gS.t);$('gplay').style.display='flex';$('gbtn').textContent='Rejouer';
+ let m='Partie finie : '+gf(sc)+' pts. ';
+ if(gSid&&sc>0){const r=await srvReq('POST','/api/game/score',{k:ME.k,pseudo:ME.pseudo,sid:gSid,sig:gSig,dur,score:sc});
+  if(r.ok){gTot=r.j.total;m+='Total : '+gf(gTot)+' pts.';if(r.j.promoted){m+=' 🎉 Nouveau rôle : '+(ROLES[r.j.role]||r.j.role)+' !';ME.role=r.j.role}gTop()}
+  else m+='Score non enregistré ('+((r.j&&r.j.error)||'serveur injoignable')+').'}
+ else if(!gSid)m+='Non enregistré : connecte-toi avec un pseudo + une clé de 8 chiffres pour entrer au classement.';
+ $('gmsg').textContent=m}
+async function gTop(){const r=await srvReq('GET','/api/game/top'),b=$('gtop');
+ if(!r.ok){b.textContent=srv()?'Classement indisponible pour le moment.':'Le serveur n\u2019est pas configuré.';return}
+ const a=r.j.list||[],me=typeof ME!=='undefined'&&ME?a.find(u=>u.pseudo.toLowerCase()===ME.pseudo.toLowerCase()):null;if(me)gTot=me.pts;
+ $('gme').textContent=gf(gTot)+' pts';$('gbar').style.width=Math.min(100,gTot/r.j.vip*100)+'%';
+ b.innerHTML=a.length?a.map((u,i)=>'<div class="ur notranslate" style="display:flex;justify-content:space-between;gap:8px"><b>'+(MEDAL[i]||'#'+(i+1))+' '+esc(u.pseudo)+(u.role&&u.role!=='membre'?' · '+esc(ROLES[u.role]||''):'')+'</b><span>'+gf(u.pts)+'</span></div>').join(''):'<div class="note">Personne pour le moment : sois le premier.</div>'}
+setInterval(()=>{if($('game').classList.contains('on')&&!document.hidden)gTop()},5000);
 </script>
 </body>
 </html>
