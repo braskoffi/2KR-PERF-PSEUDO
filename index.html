@@ -10,6 +10,7 @@
 <style>
 :root{--bg:#050308;--card:#0c0714;--line:#4a1d7a;--tx:#f5f0ff;--mut:#9a8bb5;--acc:#c04dff;--glow:0 0 12px rgba(192,77,255,.45);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#050308}}
+:root[data-theme="light"]{--bg:#f4f1fa;--card:#ffffff;--line:#d8c6ef;--tx:#231433;--mut:#6b5e80;--acc:#9020d8;--glow:0 0 10px rgba(144,32,216,.2)}
 *{box-sizing:border-box}html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
 .mono{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:2px;color:var(--acc);text-transform:uppercase}
@@ -28,10 +29,6 @@ h1{margin:0 0 4px;font-size:30px;letter-spacing:-.5px}h1 b{color:var(--acc)}
 .pb{height:5px;background:#1a0c2b;border-radius:4px;overflow:hidden;width:240px;margin:auto}.pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a020f0,#e040fb);box-shadow:var(--glow);transition:width .15s}
 #app{display:none;height:100%}
 #app.on{display:flex}
-nav{width:210px;border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:6px;flex:none}
-.logo{font-weight:800;margin:0 8px 16px;font-size:17px}
-nav button{background:none;border:1px solid transparent;color:var(--mut);text-align:left;padding:11px 12px;border-radius:10px;font:inherit;cursor:pointer}
-nav button.on{border-color:var(--acc);color:#fff;background:linear-gradient(90deg,#4a1085,#2a0b4a);box-shadow:var(--glow)}
 main{flex:1;overflow:auto;padding:24px;min-width:0}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}
 .k{font-size:11px;color:var(--mut)}.v{font-size:26px;font-weight:800;margin-top:4px}
@@ -50,11 +47,31 @@ section{display:none}section.on{display:block}
 .ov.on{display:flex}.ov .big{font-size:clamp(32px,9vw,84px);font-weight:800;line-height:1.1;word-break:break-word;text-shadow:var(--glow);margin:14px 0}
 .ov .btn{max-width:220px}
 #cust{display:none;min-height:90px;margin-top:8px}
-@media(max-width:700px){
-#app.on{flex-direction:column-reverse}
-nav{width:100%;flex-direction:row;border-right:0;border-top:1px solid var(--line);padding:6px;justify-content:space-around;gap:2px}
-.logo{display:none}nav button{text-align:center;padding:10px 4px;font-size:11px;flex:1}
-main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
+#top{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:25;display:flex;align-items:center;gap:10px}
+#burger{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--card);box-shadow:var(--glow);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0}
+#burger i{display:block;width:22px;height:3px;border-radius:3px;background:var(--acc);transition:all .35s cubic-bezier(.5,0,.5,1.5)}
+#burger.open{flex-direction:row;align-items:flex-start;gap:5px;padding-top:9px}
+#burger.open i{width:5px;border-radius:0 0 5px 5px;background:#b03cf0}
+#burger.open i:nth-child(1){height:12px}#burger.open i:nth-child(2){height:24px}#burger.open i:nth-child(3){height:17px}
+#clock{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 12px;box-shadow:var(--glow);line-height:1.15}
+#ck{display:block;font:700 18px ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+#cd{display:block;font-size:10px;color:var(--mut);text-transform:capitalize}
+#menu{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 62px);width:min(250px,calc(100vw - 20px));z-index:24;display:none}
+#menu.on{display:block}
+#menu .goo{position:absolute;inset:0;filter:url(#gooF);z-index:1;pointer-events:none}
+#items{position:relative;z-index:2;padding:12px 0 8px 34px;display:flex;flex-direction:column;gap:10px}
+.mi{height:42px;flex:none;display:flex;align-items:center;padding:0 16px;border:0;background:none;color:#fff;font:600 14px system-ui,sans-serif;text-align:left;cursor:pointer;text-decoration:none;opacity:0;transition:opacity .25s}
+.mi.shown{opacity:1}.mi.on{text-decoration:underline;text-underline-offset:4px}
+#water{position:absolute;inset:-8px;overflow:hidden;z-index:3;pointer-events:none;border-radius:18px}
+#water i{position:absolute;width:3px;border-radius:3px;background:linear-gradient(#d4efff,#3d9bff)}
+#water .wave{position:absolute;inset:0;background:linear-gradient(180deg,rgba(61,155,255,0),rgba(61,155,255,.5) 65%,rgba(200,236,255,.9))}
+main{padding-top:72px}
+@media(max-width:700px){main{padding:16px;padding-top:70px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
+.goog-te-banner-frame,.skiptranslate iframe{display:none!important}body{top:0!important}
+#lg{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(5,3,8,.8)}#lg.on{display:flex}
+#lg .card{width:100%;max-width:380px}#lgl{max-height:55vh;overflow:auto;margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#lgl button{background:#140a22;border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:9px;font:inherit;font-size:13px;cursor:pointer;text-align:left}
+#lgl button:hover{border-color:var(--acc)}
 </style>
 </head>
 <body>
@@ -80,16 +97,11 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 </div>
 
 <div id="app">
-<nav>
-<div class="logo">2KR PERF/PSEUDO<div class="mono" style="margin-top:4px">Username discovery</div></div>
-<button class="on" data-t="ov">Aperçu</button>
-<button data-t="scan">Scan</button>
-<button data-t="res">Résultats</button>
-<button data-t="perf">Perf</button>
-<button data-t="con">Connexion</button>
-<button data-t="adm" id="nadm" style="display:none">Admin</button>
-<a href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener" style="margin-top:auto;text-align:center;padding:11px 12px;border-radius:10px;border:1px solid var(--acc);color:#fff;text-decoration:none;background:linear-gradient(90deg,#a020f0,#e040fb);box-shadow:var(--glow);font-size:13px;font-weight:700">Discord ↗</a>
-</nav>
+<svg width="0" height="0" style="position:absolute"><defs><filter id="gooF"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter></defs></svg>
+<header id="top"><button id="burger" aria-label="Menu" aria-expanded="false"><i></i><i></i><i></i></button><div id="clock"><b id="ck">--:--:--</b><span id="cd"></span></div></header>
+<div id="menu"><div class="goo" id="goo"></div><div id="items">
+<button class="mi on" data-t="ov">Aperçu</button><button class="mi" data-t="scan">Scan</button><button class="mi" data-t="res">Résultats</button><button class="mi" data-t="perf">Perf</button><button class="mi" data-t="con">Connexion</button><button class="mi" data-t="ia">IA</button><button class="mi" data-t="adm" id="nadm" style="display:none">Admin</button><button class="mi" id="langBtn">🌐 Langue</button><button class="mi" id="themeBtn">🌗 Thème</button><a class="mi" href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener">Discord ↗</a>
+</div><div id="water"></div></div>
 <main>
 
 <section id="ov" class="on">
@@ -127,6 +139,12 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <button class="btn" id="go">Lancer le scan</button>
 <div class="note" id="bn"></div>
 </div>
+
+<div class="card" style="margin-top:14px"><div class="k">Recherche d'un pseudo précis sur toutes les plateformes</div>
+<div class="note">Vérifie où ce pseudo est déjà pris, avec les infos publiques disponibles (abonnés, dépôts…) quand la plateforme les fournit sans compte développeur.</div>
+<div class="two" style="margin-top:8px"><input id="srchin" placeholder="pseudo à rechercher" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="32"><button class="btn" id="srchgo">Rechercher partout</button></div>
+<div class="list" id="srchres" style="margin-top:10px;min-height:0"></div>
+</div>
 </section>
 
 <section id="res">
@@ -146,10 +164,25 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 <div class="note">Raccourci : Entrée dans la case du pseudo = même effet que le bouton.</div>
 <div class="note" id="cnote">Le pseudo est copié, puis la ou les pages choisies s'ouvrent : colle-le dans le champ du pseudo et valide, sur chacune.</div></div>
 <div class="two">
-<div class="card"><div class="k g">● Disponibles</div><div class="list" id="la"></div><button class="btn alt" id="cp">Copier la liste</button></div>
+<div class="card"><div class="k g">● Disponibles</div><div class="list" id="la"></div>
+<div class="two" style="margin-top:8px"><button class="btn alt" id="cp">Copier la liste</button><button class="btn alt" id="expTxt">Exporter en .txt</button></div></div>
 <div class="card"><div class="k r">● Indisponibles</div><div class="list" id="lu"></div></div>
 </div>
 <div class="card" id="nvc" style="display:none;margin-top:10px"><div class="k" style="color:#ffd37a">● Non vérifiés</div><div class="list" id="lv"></div></div>
+
+<div class="card" style="margin-top:10px"><div class="k">★ Favoris à surveiller</div>
+<div class="note">Un pseudo favori reste suivi même après avoir vidé les résultats. Clique sur « ★ » à côté d'un pseudo disponible pour l'ajouter, ou ajoute-en un directement ici.</div>
+<div class="two" style="margin-top:8px"><input id="favin" placeholder="pseudo à surveiller" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="32"><button class="btn alt" id="favadd">Ajouter</button></div>
+<div class="list" id="favlist" style="margin-top:8px"></div>
+<label style="margin-top:10px">Webhook Discord (optionnel, pour être alerté)</label>
+<input id="favhook" type="url" placeholder="https://discord.com/api/webhooks/...">
+<div class="note">Crée-le dans Discord : Paramètres du salon > Intégrations > Webhooks > Nouveau webhook. Ce n'est pas un lien d'invitation.</div>
+<div class="two" style="margin-top:10px"><button class="btn" id="favck">Vérifier mes favoris maintenant</button><button class="btn alt" id="favauto">Surveillance auto : désactivée</button></div>
+<div class="note" id="favnote"></div></div>
+
+<div class="card" style="margin-top:10px"><div class="k">Mes statistiques (cet appareil)</div>
+<div class="grid" id="pstat" style="margin-top:8px"></div></div>
+
 <div class="card" style="margin-top:10px"><div class="k">Mon serveur</div>
 <label>Méthode de vérification</label>
 <select class="vm"><option value="direct">Directe (Discord / GitHub)</option><option value="server">Mon serveur</option></select>
@@ -212,6 +245,24 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 </div>
 </section>
 
+<section id="ia">
+<div class="mono">Espace / IA</div>
+<h1>Créateur</h1><p class="sub">Choisis une catégorie, puis un modèle. Tu obtiens tout de suite un fichier complet et fonctionnel à tester ou à télécharger, puis à modifier comme tu veux.</p>
+<div class="two" style="margin-bottom:14px">
+<button class="btn" id="iaCatApp">Application</button>
+<button class="btn alt" id="iaCatGame">Jeu</button>
+</div>
+<div class="grid" id="iaGrid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"></div>
+<div class="card" id="iaPv" style="display:none;margin-top:14px">
+<div class="k" id="iaPvT"></div>
+<div class="note" id="iaPvD" style="margin-top:4px"></div>
+<div class="two" style="margin-top:12px">
+<button class="btn" id="iaOpen">Ouvrir / tester</button>
+<button class="btn alt" id="iaDl">Télécharger le .html</button>
+</div>
+</div>
+</section>
+
 <section id="adm">
 <div class="mono">Espace / Admin</div>
 <h1>Admin</h1><p class="sub">Tout ce que tu fais ici apparaît en direct chez tout le monde.</p>
@@ -247,14 +298,69 @@ main{padding:16px}.two{grid-template-columns:1fr}.hero h2{font-size:22px}}
 </main>
 </div>
 
+<div id="gt" style="position:absolute;left:-9999px;top:0"></div>
+<div id="lg" class="notranslate"><div class="card"><div class="k">🌐 Langue / Language</div><input id="lgq" placeholder="Rechercher / Search…" autocomplete="off" style="margin-top:8px"><div id="lgl"></div><button class="btn alt" id="lgx">Fermer</button></div></div>
 <div class="ov" id="obg"><div class="mono">Message</div><div class="big" id="obt"></div><button class="btn alt" id="obc">Fermer</button></div>
 <div class="ov" id="olk"><div class="ico">🔒</div><div class="big">Accès verrouillé</div><div class="sub">L'admin a fermé le site pour le moment.</div></div>
 
 <script>
 const $=id=>document.getElementById(id);
-function go(t){document.querySelectorAll('nav button,section').forEach(e=>e.classList.remove('on'));
- document.querySelector('nav button[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure()}
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+// thème clair/sombre, appliqué immédiatement (avant même l'écran de connexion)
+try{const th=localStorage.getItem('kr_theme');if(th)document.documentElement.dataset.theme=th}catch(e){}
+$('themeBtn').onclick=()=>{
+ const cur=document.documentElement.dataset.theme==='light'?'dark':'light';
+ document.documentElement.dataset.theme=cur;try{localStorage.setItem('kr_theme',cur)}catch(e){}
+};
+function go(t){document.querySelectorAll('.mi[data-t],section').forEach(e=>e.classList.remove('on'));
+ document.querySelector('.mi[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure()}
+document.querySelectorAll('.mi[data-t]').forEach(b=>b.onclick=()=>{go(b.dataset.t);closeMenu()});
+function tick(){const n=new Date();$('ck').textContent=n.toLocaleTimeString('fr-FR',{hour12:false});$('cd').textContent=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});setTimeout(tick,1000-n.getMilliseconds()+5)}tick();
+// menu : la peinture coule et fait apparaître les catégories, puis l'eau lave tout
+let MO=false,MB=false,MT=[];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function openMenu(){
+ if(MO||MB)return;MO=true;
+ const m=$('menu'),g=$('goo'),bg=$('burger');
+ m.classList.add('on');bg.classList.add('open');bg.setAttribute('aria-expanded','true');
+ g.getAnimations().forEach(a=>a.cancel());g.innerHTML='';$('water').innerHTML='';
+ const its=[...m.querySelectorAll('.mi')].filter(e=>e.style.display!=='none');
+ m.querySelectorAll('.mi').forEach(e=>{e.getAnimations().forEach(a=>a.cancel());e.classList.remove('shown')});
+ const W=m.offsetWidth;
+ const mk=(css,kf,o)=>{const d=document.createElement('div');d.style.cssText='position:absolute;background:#b03cf0;'+css;g.appendChild(d);d.animate(kf,{fill:'both',...o});return d};
+ mk('left:0;top:0;width:'+W+'px;height:14px;border-radius:10px;transform-origin:left',[{transform:'scaleX(0)'},{transform:'scaleX(1)'}],{duration:260,easing:'ease-out'});
+ its.forEach((it,i)=>{
+  const y=it.offsetTop+it.offsetHeight/2,x=8+(i%3)*7,w=9+(i%2)*3,del=150+i*120,dur=260+y*2.2;
+  mk(`left:${x}px;top:6px;width:${w}px;height:${y-6}px;border-radius:0 0 ${w}px ${w}px;transform-origin:top`,[{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{delay:del,duration:dur,easing:'cubic-bezier(.55,0,.9,.6)'});
+  mk(`left:${x}px;top:${it.offsetTop}px;width:${W-x-4}px;height:${it.offsetHeight}px;border-radius:21px;transform-origin:left`,[{transform:'scaleX(0)'},{transform:'scaleX(1)'}],{delay:del+dur-40,duration:340,easing:'cubic-bezier(.2,1.4,.4,1)'});
+  MT.push(setTimeout(()=>it.classList.add('shown'),del+dur+140));
+ });
+}
+function closeMenu(){
+ if(!MO||MB)return;MO=false;MB=true;MT.forEach(clearTimeout);MT=[];
+ const m=$('menu'),w=$('water'),H=m.offsetHeight;w.innerHTML='';
+ for(let i=0;i<30;i++){const s=document.createElement('i');s.style.cssText=`left:${rnd(0,98)}%;top:-40px;height:${rnd(14,40)}px`;w.appendChild(s);
+  s.animate([{transform:'translateY(0)',opacity:0},{opacity:.95,offset:.15},{transform:`translateY(${H+70}px)`,opacity:.8}],{delay:rnd(0,500),duration:rnd(600,900),easing:'ease-in',fill:'both'})}
+ const wv=document.createElement('div');wv.className='wave';w.appendChild(wv);
+ wv.animate([{transform:'translateY(-105%)'},{transform:'translateY(105%)'}],{delay:150,duration:1000,easing:'ease-in-out',fill:'both'});
+ m.querySelectorAll('.mi').forEach(it=>{if(it.style.display==='none')return;
+  it.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(10px)'}],{delay:200+it.offsetTop/H*600,duration:250,fill:'forwards'})});
+ $('goo').animate([{opacity:1},{opacity:0}],{delay:350,duration:750,fill:'forwards'});
+ setTimeout(()=>{m.classList.remove('on');const b=$('burger');b.classList.remove('open');b.setAttribute('aria-expanded','false');MB=false},1350);
+}
+const LG='af:Afrikaans|sq:Shqip|am:አማርኛ|ar:العربية|hy:Հայերեն|az:Azərbaycan|eu:Euskara|be:Беларуская|bn:বাংলা|bs:Bosanski|bg:Български|my:မြန်မာ|ca:Català|ceb:Cebuano|ny:Chichewa|zh-CN:中文 (简体)|zh-TW:中文 (繁體)|co:Corsu|hr:Hrvatski|cs:Čeština|da:Dansk|nl:Nederlands|en:English|eo:Esperanto|et:Eesti|tl:Filipino|fi:Suomi|fy:Frysk|gl:Galego|ka:ქართული|de:Deutsch|el:Ελληνικά|gu:ગુજરાતી|ht:Kreyòl ayisyen|ha:Hausa|haw:ʻŌlelo Hawaiʻi|iw:עברית|hi:हिन्दी|hmn:Hmoob|hu:Magyar|is:Íslenska|ig:Igbo|id:Indonesia|ga:Gaeilge|it:Italiano|ja:日本語|jw:Basa Jawa|kn:ಕನ್ನಡ|kk:Қазақ|km:ខ្មែរ|rw:Kinyarwanda|ko:한국어|ku:Kurdî|ky:Кыргызча|lo:ລາວ|la:Latina|lv:Latviešu|lt:Lietuvių|lb:Lëtzebuergesch|mk:Македонски|mg:Malagasy|ms:Melayu|ml:മലയാളം|mt:Malti|mi:Māori|mr:मराठी|mn:Монгол|ne:नेपाली|no:Norsk|or:ଓଡ଼ିଆ|ps:پښتو|fa:فارسی|pl:Polski|pt:Português|pa:ਪੰਜਾਬੀ|ro:Română|ru:Русский|sm:Gagana Samoa|gd:Gàidhlig|sr:Српски|st:Sesotho|sn:Shona|sd:سنڌي|si:සිංහල|sk:Slovenčina|sl:Slovenščina|so:Soomaali|es:Español|su:Basa Sunda|sw:Kiswahili|sv:Svenska|tg:Тоҷикӣ|ta:தமிழ்|tt:Татар|te:తెలుగు|th:ไทย|tr:Türkçe|tk:Türkmen|uk:Українська|ur:اردو|ug:ئۇيغۇرچە|uz:Oʻzbek|vi:Tiếng Việt|cy:Cymraeg|xh:isiXhosa|yi:ייִדיש|yo:Yorùbá|zu:isiZulu'.split('|').map(x=>{const i=x.indexOf(':');return[x.slice(0,i),x.slice(i+1)]});
+function setLang(c){const exp='; path=/; expires='+(c==='fr'?'Thu, 01 Jan 1970 00:00:00 GMT':'Fri, 31 Dec 2038 23:59:59 GMT'),v=c==='fr'?'':'/fr/'+c;
+ document.cookie='googtrans='+v+exp;try{document.cookie='googtrans='+v+exp+'; domain='+location.hostname}catch(e){}
+ try{const a=document.querySelector('.mi.on[data-t]');if(a)sessionStorage.setItem('kr_t',a.dataset.t)}catch(e){}location.reload()}
+function lgDraw(){const q=$('lgq').value.toLowerCase();$('lgl').innerHTML='';
+ [['fr','Français (original)'],...LG].filter(l=>!q||l[1].toLowerCase().includes(q)||l[0].toLowerCase().includes(q)).forEach(l=>{const b=document.createElement('button');b.textContent=l[1];b.onclick=()=>setLang(l[0]);$('lgl').appendChild(b)})}
+$('langBtn').onclick=()=>{closeMenu();$('lgq').value='';lgDraw();$('lg').classList.add('on')};
+$('lgq').oninput=lgDraw;$('lgx').onclick=()=>$('lg').classList.remove('on');
+['la','lu','lv','favlist','ck','cd','log'].forEach(id=>$(id)&&$(id).classList.add('notranslate'));
+if(/googtrans=\/fr\/[^;]+/.test(document.cookie)){window.gtInit=()=>new google.translate.TranslateElement({pageLanguage:'fr',autoDisplay:false},'gt');
+ const s=document.createElement('script');s.src='https://translate.google.com/translate_a/element.js?cb=gtInit';document.head.appendChild(s)}
+$('burger').onclick=()=>MO?closeMenu():openMenu();
+document.addEventListener('pointerdown',e=>{if(MO&&!e.target.closest('#menu,#burger'))closeMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
 
 // accès (clés) -> chargement -> app
 const CFG={"salt":"c131613f37e42893e750cf140fa0d02b","keys":["5bfbc21c6fdb54e5d3f3dfe2ec9e1f6ea295192c334293d98ede35a67cfc524a","2d2f7587454f38d76a771d2a4f55462f120fc46cacb3ff31d82a2c88a1b9c824","913f4675b373408e15c6857a82b59b972d4920ed42e2364ae2642ad479890dd3","9437006f6a9bf1d7ff3c1a9476bd6a27806a7679fa54c80f44ba01a364b93655","c4c61d117f79a2357641e728f84d3a17516e3fbf659ca818dddb28f89e813499","bd9776ba8545227b3f83b7f3070c90dc6e445a7db6e77a2e5f96cac4bbcb0ef8","ba8c04cdb55f74dd3c8eb51de78029d1610e902e82bf6b4eecd673f26f87621a","7503fa6239658c12169bfc6d0711b6a65d75f75bda7f3fcec82db96e1bb5354a","d4abe77595c813d145d5fa7d3f8505bf8fbc57fa49e8ff1a8682967476976b2a","e5c2076fb9467b6bdb9a8dd71ba370ee80a44796ce924672a287d0ee4745f632"],"topic":"2kr-1163024025dee2dc9de6","pub":{"kty":"EC","crv":"P-256","x":"1dXFdekT3anlosYRdZPTMi1DtMT6Y06BM9gCWm7T0RQ","y":"5OoFcI8GNO3uRgjMLRWAFXe81iLMJ11kJGIVy5X6zTU"},"ea":{"s":"OBqzX3ZopvEnyyOoXe51gQ==","i":"UpqDOCf0DTZmAKRy","d":"EQPL7tfhxMA/XbQmU63svXsl7cEJl3NoMywFIQX93ndVXlNBz9KMg5dS43ECz9kFO7nbbdyLM+mtW5I1HOLf49L6pqynrE8UC0IFo2WBEpjvb8779RnbAriICusBJaBGv9zA0FMMS784s3kmqhwZWnBLHWz/46VSkSIF0ykNCXtZA4jDcdZmyrQo2QxuwKvQbJgApYUDwQJJQfVZ/B/4JkW1M0oy9SDZP59mC2rzsgDf9YQmwxgJPVy6eStHiTQan6uKXHlL7Qi80jw149eYHhHpQB3ODJ2Ps/o388cd"}};
@@ -496,19 +602,19 @@ document.querySelectorAll('.va').forEach(e=>e.oninput=()=>{VA=e.value.trim();try
 vsync();
 const netMsg=()=>VM==='server'?'Impossible de joindre ton serveur (URL, https ou CORS).':'Le navigateur bloque la requête directe. Choisis « Mon serveur » et déploie worker.js.';
 
-async function check(u){
- const plat=$('plat').value;
+async function check(u,platOverride,info){
+ const plat=platOverride||$('plat').value;
  try{
   if(VM==='server'){
    if(!VA)return{e:'Aucun serveur renseigné.',fatal:1};
    let url;try{url=new URL(VA.replace('{u}',encodeURIComponent(u)))}catch(_){return{e:'URL du serveur invalide.',fatal:1}}
    if(/(^|\.)discord\.gg$/.test(url.hostname)||url.pathname.startsWith('/invite'))return{e:'Ce lien est une invitation Discord, pas un serveur de vérification.',fatal:1};
    if(!VA.includes('{u}'))url.searchParams.set('u',u);
-   url.searchParams.set('p',plat);
+   url.searchParams.set('p',plat);if(info)url.searchParams.set('info','1');
    const res=await fetch(url);
    if(res.status===429)return{w:+res.headers.get('retry-after')||10};
    const j=await res.json();
-   if(typeof j.available==='boolean')return{ok:j.available};
+   if(typeof j.available==='boolean')return{ok:j.available,info:j.info,approx:j.approx};
    return{e:j.error||'Réponse inattendue du serveur.'};
   }
   if(plat==='Discord'){
@@ -521,9 +627,26 @@ async function check(u){
   }
   if(plat==='GitHub'){
    const res=await fetch('https://api.github.com/users/'+encodeURIComponent(u));
-   if(res.status===404)return{ok:true};if(res.status===200)return{ok:false};
+   if(res.status===404)return{ok:true};
+   if(res.status===200){
+    if(info){const j=await res.json().catch(()=>({}));return{ok:false,info:{abonnes:j.followers,abonnements:j.following,depots:j.public_repos}}}
+    return{ok:false};
+   }
    if(res.status===403||res.status===429)return{w:60};
    return{e:'Réponse inattendue de GitHub ('+res.status+').'};
+  }
+  if(plat==='Roblox'){
+   const res=await fetch('https://users.roblox.com/v1/usernames/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:[u],excludeBannedUsers:false})});
+   if(!res.ok)return{w:res.status===429?30:0,e:res.status!==429?'Réponse Roblox inattendue ('+res.status+').':undefined};
+   const j=await res.json().catch(()=>({}));
+   const hit=(j.data||[])[0];
+   if(!hit)return{ok:true};
+   if(!info)return{ok:false};
+   const[fo,fw]=await Promise.all([
+    fetch('https://friends.roblox.com/v1/users/'+hit.id+'/followers/count').then(x=>x.json()).catch(()=>({})),
+    fetch('https://friends.roblox.com/v1/users/'+hit.id+'/followings/count').then(x=>x.json()).catch(()=>({}))
+   ]);
+   return{ok:false,info:{abonnes:fo.count,abonnements:fw.count}};
   }
   return{e:'Cette plateforme demande « Mon serveur » (Connexion).',fatal:1};
  }catch(err){return{net:1}}
@@ -541,7 +664,9 @@ function paint(){
  $('sq').textContent=$('oq').textContent=q;$('sc').textContent=$('oc').textContent=c;$('sa').textContent=$('oa').textContent=av.length;$('ss').textContent=sp;
  $('rt').textContent=av.length+un.length+nv.length;$('ra').textContent=av.length;$('rn').textContent=un.length;
  const cl=CL[lastPlat||$('plat').value];
- $('la').innerHTML=av.map(x=>'<div class="g">'+esc(x)+' <button class="cp" data-u="'+esc(x)+'" style="float:right;background:#140a22;border:1px solid var(--acc);color:#fff;border-radius:8px;padding:3px 9px;cursor:pointer;font:inherit;font-size:12px">Changer le pseudo</button></div>').join('');
+ $('la').innerHTML=av.map(x=>'<div class="g">'+esc(x)+
+  ' <button class="cp" data-u="'+esc(x)+'" style="float:right;background:#140a22;border:1px solid var(--acc);color:#fff;border-radius:8px;padding:3px 9px;cursor:pointer;font:inherit;font-size:12px">Changer le pseudo</button>'+
+  '<button class="favstar" data-u="'+esc(x)+'" title="Ajouter aux favoris" style="float:right;background:#140a22;border:1px solid var(--line);color:#ffd37a;border-radius:8px;padding:3px 8px;cursor:pointer;font:inherit;font-size:12px;margin-right:6px">★</button></div>').join('');
  $('lu').innerHTML=un.slice(-300).reverse().map(x=>'<div class="r">'+esc(x)+'</div>').join('');
  $('lv').innerHTML=nv.slice(-100).reverse().map(x=>'<div style="color:#ffd37a">'+esc(x)+'</div>').join('');
  $('nvc').style.display=nv.length?'block':'none';
@@ -567,7 +692,7 @@ $('go').onclick=async()=>{
   q--;
   if(!run){seen.delete(u);paint();break}
   d++;
-  if('ok' in r){errs=0;(r.ok?av:un).push(u);c++;log(u+(r.ok?' · disponible':' · pris'))}
+  if('ok' in r){errs=0;(r.ok?av:un).push(u);c++;log(u+(r.ok?' · disponible':' · pris')+(r.approx?' (estimé)':''));bumpStat(r.ok)}
   else{nv.push(u);errs++;const m=r.net?netMsg():r.e;$('bn').textContent=m;log(u+' · non vérifié');
    if(r.fatal||errs>=3){log('Scan arrêté : '+m);break}}
   save();paint();await sleep(+$('spd').value);
@@ -604,8 +729,118 @@ async function chg(u,plats){
 }
 $('cgo').onclick=()=>chg($('cin').value);
 $('cin').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();chg($('cin').value)}};
-$('la').onclick=e=>{const b=e.target.closest('.cp');if(b)chg(b.dataset.u,[lastPlat||$('plat').value])};
+$('la').onclick=e=>{
+ const cp=e.target.closest('.cp');if(cp){chg(cp.dataset.u,[lastPlat||$('plat').value]);return}
+ const fs=e.target.closest('.favstar');if(fs){addFav(fs.dataset.u,lastPlat||$('plat').value)}
+};
 cplatsInit();
+
+// export .txt des résultats
+$('expTxt').onclick=()=>{
+ const lines=['2KR PERF/PSEUDO — export','Plateforme : '+(lastPlat||$('plat').value),'',
+  'Disponibles ('+av.length+') :',...av,'','Indisponibles ('+un.length+') :',...un.slice(-1000)];
+ const blob=new Blob([lines.join('\n')],{type:'text/plain'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='2kr-resultats.txt';document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),2000);
+};
+
+// statistiques personnelles (sur cet appareil uniquement — pas de serveur partagé)
+function pstat(){try{return JSON.parse(localStorage.getItem('kr_pstat')||'{}')}catch(e){return{}}}
+function bumpStat(ok){try{const s=pstat();s.checked=(s.checked||0)+1;if(ok)s.avail=(s.avail||0)+1;localStorage.setItem('kr_pstat',JSON.stringify(s))}catch(e){}renderPstat()}
+function renderPstat(){
+ const s=pstat(),cd=(k,v)=>'<div class="card"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+ $('pstat').innerHTML=cd('Pseudos vérifiés (total)',s.checked||0)+cd('Disponibles trouvés (total)',s.avail||0)+cd('Favoris surveillés',favs().length);
+}
+
+// favoris : liste de pseudos à surveiller, persistée sur cet appareil
+function favs(){try{return JSON.parse(localStorage.getItem('kr_fav')||'[]')}catch(e){return[]}}
+function setFavs(l){try{localStorage.setItem('kr_fav',JSON.stringify(l))}catch(e){}}
+function renderFav(){
+ const l=favs();
+ $('favlist').innerHTML=l.length?l.map((f,i)=>'<div>'+esc(f.u)+' <span style="color:var(--mut)">('+esc(f.p)+')</span>'+
+  ' <button class="favrm" data-i="'+i+'" style="float:right;background:#140a22;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:2px 8px;cursor:pointer;font:inherit;font-size:12px">Retirer</button></div>').join('')
+  :'<div style="color:var(--mut)">Aucun favori pour l\'instant.</div>';
+ renderPstat();
+}
+function addFav(u,p){
+ const l=favs();if(l.some(f=>f.u===u&&f.p===p)){$('favnote').textContent='« '+u+' » ('+p+') est déjà dans tes favoris.';return}
+ l.push({u,p});setFavs(l);renderFav();$('favnote').textContent='« '+u+' » ajouté aux favoris.';
+}
+$('favadd').onclick=()=>{const u=$('favin').value.trim();if(!u)return;addFav(u,lastPlat||$('plat').value);$('favin').value=''};
+$('favin').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('favadd').click()}};
+$('favlist').onclick=e=>{const b=e.target.closest('.favrm');if(!b)return;const l=favs();l.splice(+b.dataset.i,1);setFavs(l);renderFav()};
+try{$('favhook').value=localStorage.getItem('kr_favhook')||''}catch(e){}
+$('favhook').oninput=()=>{try{localStorage.setItem('kr_favhook',$('favhook').value.trim())}catch(e){}};
+
+async function favck(){
+ const l=favs();if(!l.length){$('favnote').textContent='Aucun favori à vérifier pour l\'instant.';return}
+ $('favnote').textContent='Vérification de '+l.length+' favori(s)…';
+ const found=[];
+ for(const f of l.slice()){
+  let r;try{r=await check(f.u,f.p)}catch(e){r={net:1}}
+  if('ok' in r){bumpStat(r.ok);if(r.ok)found.push(f)}
+  await sleep(600);
+ }
+ if(found.length){
+  setFavs(favs().filter(f=>!found.some(x=>x.u===f.u&&x.p===f.p)));renderFav();
+  const hook=($('favhook').value||'').trim();
+  found.forEach(f=>{
+   log('★ Favori disponible : '+f.u+' ('+f.p+') !');
+   if(hook)fetch(hook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:'🎉 Le pseudo **'+f.u+'** ('+f.p+') est maintenant disponible !'})}).catch(()=>{});
+  });
+  $('favnote').textContent=found.length+' favori(s) disponible(s) ! Retirés de la liste'+(hook?' et webhook averti (si la requête a réussi).':'.');
+ }else{
+  $('favnote').textContent='Vérifié '+l.length+' favori(s) : toujours pris pour l\'instant.';
+ }
+}
+$('favck').onclick=favck;
+let favAutoTimer=null;
+$('favauto').onclick=()=>{
+ if(favAutoTimer){clearInterval(favAutoTimer);favAutoTimer=null;$('favauto').textContent='Surveillance auto : désactivée';return}
+ $('favauto').textContent='Surveillance auto : activée (toutes les 5 min, tant que cette page reste ouverte)';
+ favck();favAutoTimer=setInterval(favck,5*60*1000);
+};
+renderFav();
+
+// recherche d'un pseudo précis sur toutes les plateformes
+function slugP(p){return p.replace(/[^a-z0-9]/gi,'')}
+const PU={'Twitter / X':u=>'https://x.com/'+u,'Telegram':u=>'https://t.me/'+u,'GitHub':u=>'https://github.com/'+u,'Roblox':u=>'https://www.roblox.com/user.aspx?username='+u,'Instagram':u=>'https://www.instagram.com/'+u+'/','TikTok':u=>'https://www.tiktok.com/@'+u};
+function renderSrchRow(p,r,u){
+ const el=$('sr_'+slugP(p));if(!el)return;
+ let txt;
+ if('ok' in r){
+  if(r.ok)txt='<span class="g">libre</span>';
+  else{
+   txt='<span class="r">pris</span>';
+   if(r.info){const parts=[];
+    if(r.info.abonnes!=null)parts.push(r.info.abonnes+' abonnés');
+    if(r.info.abonnements!=null)parts.push(r.info.abonnements+' abonnements');
+    if(r.info.depots!=null)parts.push(r.info.depots+' dépôts');
+    if(parts.length)txt+=' — '+parts.join(' · ');
+   }
+  }
+ }else if(r.fatal)txt='<span style="color:#ffd37a">verdict indisponible en mode direct : active « Mon serveur » (Connexion)</span>';
+ else txt='<span style="color:#ffd37a">'+esc(r.net?'erreur réseau':(r.e||'inconnu'))+'</span>';
+ if(r.approx)txt+=' <span style="color:var(--mut)">(estimé)</span>';
+ if(PU[p]&&(r.approx||!('ok' in r)))txt+=' · <a href="'+esc(PU[p](encodeURIComponent(u)))+'" target="_blank" rel="noopener" style="color:#e9a6ff">ouvrir le profil ↗</a>';
+ el.innerHTML='<b>'+esc(p)+'</b> : '+txt;
+}
+$('srchgo').onclick=async()=>{
+ const u=$('srchin').value.trim();if(!u)return;
+ $('srchgo').disabled=true;$('srchgo').textContent='Recherche…';
+ const plats=Object.keys(CL);
+ $('srchres').innerHTML=plats.map(p=>'<div id="sr_'+slugP(p)+'"><b>'+esc(p)+'</b> : …</div>').join('');
+ for(const p of plats){
+  let r;try{r=await check(u,p,true)}catch(e){r={net:1}}
+  if(r.w){await sleep(Math.min(r.w,15)*1000);try{r=await check(u,p,true)}catch(e){r={net:1}}}
+  renderSrchRow(p,r,u);
+  await sleep(300);
+ }
+ $('srchgo').disabled=false;$('srchgo').textContent='Rechercher partout';
+};
+$('srchin').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('srchgo').click()}};
+
 paint();
 
 async function measure(){

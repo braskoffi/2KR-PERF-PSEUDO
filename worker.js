@@ -94,8 +94,57 @@ export default {
   if(p==='GitHub'){
    const r=await fetch('https://api.github.com/users/'+encodeURIComponent(u),{headers:{'User-Agent':'2kr-checker'}});
    if(r.status===404)return out({available:true});
-   if(r.status===200)return out({available:false});
+   if(r.status===200){
+    if(q.get('info')==='1'){const j=await r.json().catch(()=>({}));
+     return out({available:false,info:{abonnes:j.followers,abonnements:j.following,depots:j.public_repos}})}
+    return out({available:false});
+   }
    return out({error:'GitHub '+r.status},r.status===403?429:502,r.status===403?{'Retry-After':'60'}:{});
+  }
+  if(p==='Roblox'){
+   // API publique de Roblox : recherche par pseudo exact (aucune clé requise).
+   const r=await fetch('https://users.roblox.com/v1/usernames/users',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:[u],excludeBannedUsers:false})});
+   if(!r.ok)return out({error:'Roblox '+r.status},r.status===429?429:502,r.status===429?{'Retry-After':'30'}:{});
+   const j=await r.json().catch(()=>({}));
+   const hit=(j.data||[])[0];
+   if(!hit)return out({available:true});
+   if(q.get('info')!=='1')return out({available:false});
+   const [fo,fw]=await Promise.all([
+    fetch('https://friends.roblox.com/v1/users/'+hit.id+'/followers/count').then(x=>x.json()).catch(()=>({})),
+    fetch('https://friends.roblox.com/v1/users/'+hit.id+'/followings/count').then(x=>x.json()).catch(()=>({}))
+   ]);
+   return out({available:false,info:{abonnes:fo.count,abonnements:fw.count}});
+  }
+  // Plateformes sans API publique : vérification « au mieux » en lisant la page publique du profil.
+  // Le résultat est marqué approx:true (estimé) car ces plateformes peuvent changer ou bloquer.
+  if(['Telegram','Twitter / X','Instagram','TikTok'].includes(p)){
+   const UA={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36','Accept-Language':'en'};
+   const est=a=>out({available:a,approx:true});
+   const blocked=()=>out({error:p+' bloque la vérification automatique'},502);
+   try{
+    const e=encodeURIComponent(u);
+    if(p==='Telegram'){
+     const r=await fetch('https://t.me/'+e,{headers:UA});if(!r.ok)return blocked();
+     const h=await r.text();
+     return est(!(h.includes('tgme_page_extra')||!/<title>\s*Telegram: Contact @/i.test(h)));
+    }
+    if(p==='Twitter / X'){
+     const r=await fetch('https://cdn.syndication.twimg.com/widgets/followbutton/info.json?screen_names='+e,{headers:UA});if(!r.ok)return blocked();
+     const j=await r.json().catch(()=>null);if(!Array.isArray(j))return blocked();
+     return est(j.length===0);
+    }
+    if(p==='Instagram'){
+     const r=await fetch('https://www.instagram.com/'+e+'/',{headers:UA,redirect:'manual'});
+     if(r.status===404)return est(true);if(r.status===200)return est(false);return blocked();
+    }
+    const r=await fetch('https://www.tiktok.com/@'+e,{headers:UA});
+    if(r.status===404)return est(true);
+    const h=await r.text();
+    if(/"statusCode":10(221|202)/.test(h))return est(true);
+    if(h.includes('"uniqueId":"'))return est(false);
+    return blocked();
+   }catch(err){return out({error:p+' injoignable'},502)}
   }
   return out({error:'plateforme non gérée par ce serveur'},501);
  }

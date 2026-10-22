@@ -75,4 +75,31 @@ Se connecter avec un compte (onglet Connexion)
   jours à plusieurs semaines. Demande leur validation si tu veux les ajouter
   plus tard.
 
+Nouvelles fonctionnalités
+-------------------------
+- Thème clair/sombre : bouton en bas du menu de gauche, mémorisé sur l'appareil.
+- Recherche d'un pseudo précis sur toutes les plateformes (onglet Scan) : montre
+  où il est pris, avec les infos publiques disponibles (abonnés, dépôts) pour
+  GitHub et Roblox uniquement — les autres plateformes n'offrent pas cet accès
+  public gratuitement, le site l'indique honnêtement plutôt que d'inventer des
+  chiffres.
+- Favoris (onglet Résultats) : ★ sur un pseudo disponible, ou ajout manuel, pour
+  le surveiller. « Vérifier maintenant » ou « Surveillance auto (5 min) » le
+  revérifie et, s'il se libère, peut envoyer une alerte sur un webhook Discord
+  que tu colles dans le champ prévu (Paramètres du salon > Intégrations >
+  Webhooks > Nouveau webhook — ce n'est pas un lien d'invitation). La
+  surveillance automatique ne fonctionne que tant que cette page reste ouverte.
+- Export .txt des résultats, à côté de « Copier la liste ».
+- Statistiques personnelles (onglet Résultats) : total vérifié/trouvé sur cet
+  appareil uniquement — pas de compteur partagé entre tous les visiteurs du
+  site, ça demanderait un vrai serveur de comptes que ce site n'a pas.
+
+Deux choses que ce site ne peut pas faire
+------------------------------------------
+- Changer sa propre clé d'accès : les 10 clés sont fixes, seul l'admin peut
+  réactiver/révoquer. Un vrai changement de clé par chacun demanderait un
+  serveur de comptes, pas seulement une page web.
+- Statistiques globales partagées par tous les visiteurs : pareil, ça
+  demanderait un serveur central qui reçoit les données de tout le monde.
+
 Discord : https://discord.gg/4Sr4AvRahb
