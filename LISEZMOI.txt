@@ -103,3 +103,13 @@ Deux choses que ce site ne peut pas faire
   demanderait un serveur central qui reçoit les données de tout le monde.
 
 Discord : https://discord.gg/4Sr4AvRahb
+
+
+=== Pseudos, clés liées à un pseudo, IP et région (admin) ===
+1) Cloudflare > Workers & Pages > KV > Create namespace (ex. « kr »).
+2) Ton worker > Settings > Bindings > Add > KV namespace : nom de variable EXACT « KR », choisis le namespace.
+3) Redéploie worker.js, puis dans le site (connecté en admin) > Admin > « Adresse du serveur » : colle l'URL du worker > Enregistrer pour tous.
+4) Admin > « Créer une clé liée à un pseudo » : la clé (8 chiffres) est affichée et copiée. La personne se connecte avec CE pseudo + CETTE clé.
+5) Admin > « Utilisateurs » : touche un pseudo pour voir son IP, sa région, ses connexions.
+Notes : le KV gratuit est limité à 1000 écritures/jour (chaque connexion en fait 1 à 2). L'IP et la région viennent de Cloudflare (la région est approximative).
+Les clés classiques (6 chiffres) marchent toujours : on y ajoute juste un pseudo libre. La clé admin (10 chiffres) n'est jamais mémorisée sur l'appareil.

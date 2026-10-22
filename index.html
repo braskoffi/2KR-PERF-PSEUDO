@@ -84,6 +84,9 @@ main{padding-top:72px}
 .stb{background:var(--card2);border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:9px;font:inherit;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
 .stb.on{border-color:var(--acc);box-shadow:var(--glow)}.stb i{width:14px;height:14px;border-radius:50%;flex:none}
 #st .card{max-height:88vh;overflow:auto}
+.drw{max-height:0;overflow:hidden;transition:max-height .5s ease}.drw.on{max-height:3000px}
+.ur{padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer;background:var(--card2)}
+.ud{display:none;font-size:13px;color:var(--mut);margin-top:8px;line-height:1.7}.ur.on .ud{display:block}.ud .btn{margin-top:8px}
 </style>
 </head>
 <body>
@@ -93,8 +96,11 @@ main{padding-top:72px}
 <div class="ico">🎯</div>
 <h1>Welcome back<b>.</b></h1>
 <p class="sub">Entre ta clé pour ouvrir ta session.</p>
+<label>Pseudo</label>
+<input id="pseudo" maxlength="24" placeholder="Ton pseudo" autocomplete="username">
 <label>Clé d'accès</label>
 <input id="key" type="password" inputmode="numeric" maxlength="10" placeholder="••••••" autocomplete="off">
+<label style="display:flex;align-items:center;gap:10px;margin:12px 0;cursor:pointer;font-size:14px"><input type="checkbox" id="rem" checked style="width:20px;height:20px;margin:0;flex:none"> Rester connecté sur cet appareil</label>
 <button class="btn" id="open">Ouvrir l'espace</button>
 <div class="note" id="kerr"></div>
 <a href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:14px;color:#e9a6ff;font-size:13px">Rejoindre le serveur Discord ↗</a>
@@ -304,6 +310,15 @@ main{padding-top:72px}
 <button class="btn" id="adsv2">Enregistrer pour tous</button>
 <div class="note" id="adn2"></div>
 <div class="note">Les clés secrètes de ces applications (GitHub, Twitter/X, Roblox) ne se configurent jamais ici : elles restent uniquement dans les variables d'environnement de ton worker Cloudflare. Voir LISEZMOI.</div></div>
+<div class="card" style="margin-top:12px"><label>Adresse du serveur (Cloudflare Worker avec KV)</label>
+<input id="aws" placeholder="https://mon-worker.workers.dev"><button class="btn" id="awsv">Enregistrer pour tous</button>
+<div class="note">Nécessaire pour les clés liées à un pseudo, la liste des utilisateurs, leur IP et leur région.</div></div>
+<div class="card" style="margin-top:12px"><button class="btn alt" id="udb">👥 Utilisateurs ▾</button>
+<div id="udr" class="drw"><div id="ul"></div></div></div>
+<div class="card" style="margin-top:12px"><div class="k">Créer une clé liée à un pseudo</div>
+<input id="knp" maxlength="24" placeholder="Pseudo de la personne"><button class="btn" id="knb">Créer la clé</button>
+<div class="note notranslate" id="knm"></div><button class="btn alt" id="kdb">🔑 Clés créées ▾</button>
+<div id="kdr" class="drw"><div id="kl"></div></div></div>
 <div class="note" id="ast"></div><div class="note" id="asy">Temps réel : connexion…</div>
 </section>
 
@@ -428,6 +443,7 @@ if(/googtrans=\/fr\/[^;]+/.test(document.cookie)){window.gtInit=()=>new google.t
  const s=document.createElement('script');s.src='https://translate.google.com/translate_a/element.js?cb=gtInit';document.head.appendChild(s)}
 const THEMES=[['dark','Violet','#c04dff'],['light','Clair','#9020d8'],['ocean','Océan','#3da8ff'],['forest','Forêt','#3ddc84'],['rose','Rose','#ff4da6'],['sunset','Coucher de soleil','#ff8a3d'],['blood','Rouge','#ff3d4a'],['gold','Or','#ffd23d'],['mono','Noir AMOLED','#ffffff']];
 function stDraw(){const cur=document.documentElement.dataset.theme||'dark',b=$('stb');b.innerHTML='';
+ if(ME){const w=document.createElement('div');w.className='k notranslate';w.textContent='Connecté : '+ME.pseudo+' · '+(ME.admin?'Admin':ROLES[ME.role||'membre']||'Membre');b.appendChild(w)}
  const lab=t=>{const d=document.createElement('div');d.className='k';d.style.margin='14px 0 6px';d.textContent=t;b.appendChild(d)};
  lab('Thème');const g=document.createElement('div');g.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:6px';
  THEMES.forEach(([id,n,c])=>{const x=document.createElement('button');x.className='stb'+(cur===id?' on':'');x.innerHTML='<i style="background:'+c+'"></i>'+n;
@@ -452,9 +468,16 @@ const CFG={"salt":"c131613f37e42893e750cf140fa0d02b","keys":["5bfbc21c6fdb54e5d3
 const enc=new TextEncoder(),dec=new TextDecoder();
 const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-let ST={t:0,x:'',l:0,r:[],d:'',tg:'',gh:'',tw:'',rb:''},ME=null,dis=0,pubKey=null,LM='',RDY;
+let ST={t:0,x:'',l:0,r:[],d:'',tg:'',gh:'',tw:'',rb:'',w:''},ME=null,dis=0,pubKey=null,LM='',RDY;
 const rdy=new Promise(r=>{RDY=r;setTimeout(r,2500)});
 
+const srv=()=>{let v='';try{v=VA||''}catch(e){}return(ST.w||v||'').trim().replace(/\/+$/,'')};
+async function srvReq(method,path,o,admin){const base=srv();if(!base)return{ok:false,st:0,j:{}};
+ const b=method==='POST'?JSON.stringify(o||{}):'',hd={'Content-Type':'application/json'};
+ try{if(admin){const ts=Date.now()+'';hd['X-Ts']=ts;hd['X-Sig']=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(ts+'\n'+path+'\n'+b)))}
+  const r=await fetch(base+path,{method,headers:hd,body:method==='POST'?b:undefined});
+  return{ok:r.ok,st:r.status,j:await r.json().catch(()=>({}))}}catch(e){return{ok:false,st:0,j:{}}}}
+function kickMe(m){try{localStorage.removeItem('kr_k');sessionStorage.setItem('kr_m',m)}catch(e){}location.reload()}
 async function login(k){
  if(/^\d{6}$/.test(k)){const i=CFG.keys.indexOf(await sha(CFG.salt+k));if(i>=0)return{kid:i+1,admin:false}}
  else if(/^\d{10}$/.test(k)){try{
@@ -467,15 +490,23 @@ async function login(k){
 
 let bad=0,until=0;
 async function open_(){
- const k=$('key').value.trim();
+ const k=$('key').value.trim(),ps=$('pseudo').value.trim();
  if(!window.crypto||!crypto.subtle){$('kerr').textContent='Ouvre le site en https pour te connecter.';return}
  if(Date.now()<until){$('kerr').textContent='Trop d\'essais. Réessaie dans '+Math.ceil((until-Date.now())/1000)+' s.';return}
+ if(!/^\d{10}$/.test(k)&&(ps.length<2||ps.length>24)){$('kerr').textContent='Entre ton pseudo (2 à 24 caractères).';return}
  $('kerr').textContent='Vérification…';
- const me=await login(k);await rdy;
+ let me=await login(k);await rdy;let sm='';
+ if(!me&&/^\d{8}$/.test(k)){const r=await srvReq('POST','/api/login',{k,pseudo:ps});
+  if(r.ok)me={kid:-1,admin:false,srv:1,role:r.j.role};else sm=r.st===401?(r.j.error==='revoked'?'Cette clé a été révoquée.':r.j.error==='blocked'?'Accès bloqué par un admin.':'Clé ou pseudo invalide.'):'Serveur injoignable ou non configuré.'}
  const rev=me&&me.kid>0&&ST.r.includes(me.kid);
- if(!me||rev){if(++bad>=5){until=Date.now()+30000;bad=0}$('kerr').textContent=rev?'Cette clé a été révoquée.':'Clé invalide.';return}
+ if(!me||rev){if(++bad>=5){until=Date.now()+30000;bad=0}$('kerr').textContent=rev?'Cette clé a été révoquée.':(sm||'Clé invalide.');return}
  ME=me;bad=0;$('kerr').textContent='';$('key').value='';
- if(!me.admin){try{localStorage.setItem('kr_k',k)}catch(e){}}
+ me.pseudo=ps||'Admin';me.k=k;
+ try{if($('rem').checked&&!me.admin){localStorage.setItem('kr_k',k);localStorage.setItem('kr_p',ps);localStorage.setItem('kr_rem','1')}
+  else{localStorage.removeItem('kr_k');localStorage.removeItem('kr_p');localStorage.setItem('kr_rem',$('rem').checked?'1':'0')}}catch(e){}
+ if(!me.srv)srvReq('POST','/api/seen',{pseudo:me.pseudo,kid:me.kid}).then(r=>{me.role=r.j.role;if(r.j.role==='bloque')kickMe('Accès bloqué par un admin.')});
+ if(!me.srv&&!me.admin)setInterval(async()=>{const r=await srvReq('POST','/api/role',{pseudo:me.pseudo});if(r.ok){me.role=r.j.role;if(r.j.role==='bloque')kickMe('Accès bloqué par un admin.')}},60000);
+ if(me.srv)setInterval(async()=>{const r=await srvReq('POST','/api/ping',{k,pseudo:ps});if(r.ok)me.role=r.j.role;if(r.st===401)kickMe(r.j.error==='blocked'?'Accès bloqué par un admin.':'Cette clé a été révoquée.')},60000);
  $('nadm').style.display=me.admin?'':'none';
  $('login').style.display='none';$('boot').style.display='flex';
  const m=['Synchronisation des réglages…','Démarrage du moteur…','Connexion de la session…'];let p=0;
@@ -495,7 +526,7 @@ function render(){
   $('alk').textContent=ST.l?'Le site est verrouillé : seuls les admins y accèdent.':'Le site est ouvert.';
   $('adn').textContent='Actuel : '+(ST.d||'aucun')+' · À ajouter dans Discord > OAuth2 > Redirects : '+location.origin+location.pathname;
   $('arl').textContent='Clés révoquées : '+(ST.r.length?ST.r.join(', '):'aucune');
-  const wb=workerBase();
+  if(document.activeElement!==$('aws'))$('aws').value=ST.w||'';const wb=workerBase();
   $('adn2').textContent='Actuel : Telegram='+(ST.tg||'aucun')+' · GitHub='+(ST.gh||'aucun')+' · Twitter/X='+(ST.tw||'aucun')+' · Roblox='+(ST.rb||'aucun')+
    (wb?(' · Redirect URIs à enregistrer sur chaque plateforme (doivent être strictement identiques) : GitHub='+wb+'/oauth/github/callback · Twitter/X='+wb+'/oauth/twitter/callback · Roblox='+wb+'/oauth/roblox/callback'):' · Renseigne d\'abord ton serveur (Mon serveur) pour voir les Redirect URIs à enregistrer.')
  }
@@ -511,12 +542,53 @@ function sync(){
  es.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.event==='message')onMsg(d.message)}catch(_){}};
 }
 async function pub(n){
- const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,d:ST.d||'',tg:ST.tg||'',gh:ST.gh||'',tw:ST.tw||'',rb:ST.rb||'',...n},p=JSON.stringify(s);
+ const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,d:ST.d||'',tg:ST.tg||'',gh:ST.gh||'',tw:ST.tw||'',rb:ST.rb||'',w:ST.w||'',...n},p=JSON.stringify(s);
  const g=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(p)));
  LM=JSON.stringify({p,s:g});
  try{const r=await fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM});if(!r.ok)throw 0;ST=s;render();$('ast').textContent='Envoyé à tout le monde ✓'}
  catch(e){$('ast').textContent='Échec de l\'envoi. Vérifie ta connexion.'}
 }
+// admin : serveur, utilisateurs, clés
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const ago=t=>{if(!t)return'—';const s=(Date.now()-t)/1e3;return s<60?'à l’instant':s<3600?Math.floor(s/60)+' min':s<86400?Math.floor(s/3600)+' h':Math.floor(s/86400)+' j'};
+const fdt=t=>t?new Date(t).toLocaleString('fr-FR'):'—';
+const ROLES={membre:'Membre',vip:'VIP',modo:'Modérateur',bloque:'Bloqué'};
+const drw=(btn,box,fn)=>{btn.onclick=()=>{const on=!box.classList.contains('on');box.classList.toggle('on',on);btn.textContent=btn.textContent.replace(/[▴▾]$/,on?'▴':'▾');if(on)fn()}};
+const srvErr=(l,r)=>{l.textContent=srv()?'Erreur serveur ('+(r.st||'injoignable')+') : vérifie le worker (KV « KR » et clé admin).':'Renseigne d’abord l’adresse du serveur.'};
+async function loadUsers(){const l=$('ul');l.textContent='Chargement…';const r=await srvReq('GET','/api/admin/users',null,1);
+ if(!r.ok){srvErr(l,r);return}
+ const us=r.j.users||[];l.textContent=us.length?'':'Aucun utilisateur pour le moment.';$('udb').textContent='👥 Utilisateurs ('+us.length+') ▴';
+ us.forEach(u=>{const row=el('div','ur'),hd=el('div');hd.style.cssText='display:flex;justify-content:space-between;gap:8px';hd.append(el('b','notranslate',u.pseudo),el('span','',(ROLES[u.role||'membre']||'Membre')+' · '+ago(u.last)));
+  const d=el('div','ud');
+  [['IP',u.ip||'—'],['Région',[u.city,u.region,u.country].filter(Boolean).join(', ')||'—'],['Dernière connexion',fdt(u.last)],['Première connexion',fdt(u.first)],['Connexions',u.n||0],['Type',u.via==='key'?'clé du serveur':'clé classique']]
+   .forEach(([a,b])=>{const p=el('div');p.append(a+' : ',el('b','notranslate',String(b)));d.append(p)});
+  const sel=el('select');sel.style.cssText='background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit';
+  Object.keys(ROLES).forEach(r=>{const o=el('option','',ROLES[r]);o.value=r;if((u.role||'membre')===r)o.selected=true;sel.append(o)});
+  sel.onclick=e=>e.stopPropagation();sel.onchange=async()=>{await srvReq('POST','/api/admin/users/role',{pseudo:u.pseudo,role:sel.value},1);loadUsers()};
+  const rl=el('div');rl.append('Rôle : ',sel);d.append(rl);
+  const km=el('div','notranslate'),nk=el('button','btn','Créer une nouvelle clé pour ce pseudo');
+  nk.onclick=async e=>{e.stopPropagation();const r=await srvReq('POST','/api/admin/keys',{pseudo:u.pseudo},1);km.textContent=r.ok?'Nouvelle clé : '+r.j.key+' (copiée)':'Échec de la création.';if(r.ok)try{navigator.clipboard.writeText(r.j.key)}catch(e){}};
+  d.append(nk,km);
+  const x=el('button','btn alt','Retirer de la liste');x.onclick=async e=>{e.stopPropagation();await srvReq('POST','/api/admin/users/del',{pseudo:u.pseudo},1);loadUsers()};d.append(x);
+  row.append(hd,d);row.onclick=()=>row.classList.toggle('on');l.append(row)})}
+async function loadKeys(){const l=$('kl');l.textContent='Chargement…';const r=await srvReq('GET','/api/admin/keys',null,1);
+ if(!r.ok){srvErr(l,r);return}
+ const ks=r.j.keys||[];l.textContent=ks.length?'':'Aucune clé créée.';$('kdb').textContent='🔑 Clés créées ('+ks.length+') ▴';
+ ks.forEach(k=>{const row=el('div','ur'),hd=el('div');hd.style.cssText='display:flex;justify-content:space-between;gap:8px';hd.append(el('b','notranslate',k.pseudo),el('span','',k.rev?'révoquée':'active'));
+  const d=el('div','ud'),p=el('div');const kv=el('b','notranslate','••••••••');kv.onclick=e=>{e.stopPropagation();kv.textContent=kv.textContent[0]==='•'?k.key:'••••••••'};
+  p.append('Clé (touche pour voir) : ',kv);d.append(p);
+  const q=el('div');q.append('Utilisations : ',el('b','',String(k.uses||0)),' · dernière : '+ago(k.last));d.append(q);
+  const act=(txt,fn,c)=>{const b=el('button','btn '+(c||'alt'),txt);b.onclick=async e=>{e.stopPropagation();await fn();loadKeys()};d.append(b)};
+  act(k.rev?'Rétablir':'Révoquer',()=>srvReq('POST','/api/admin/keys/rev',{id:k.id,rev:k.rev?0:1},1));
+  act('Supprimer',()=>srvReq('POST','/api/admin/keys/del',{id:k.id},1));
+  row.append(hd,d);row.onclick=()=>row.classList.toggle('on');l.append(row)})}
+drw($('udb'),$('udr'),loadUsers);drw($('kdb'),$('kdr'),loadKeys);
+$('awsv').onclick=()=>pub({w:$('aws').value.trim().replace(/\/+$/,'')});
+$('knb').onclick=async()=>{const p=$('knp').value.trim();if(p.length<2||p.length>24){$('knm').textContent='Pseudo de 2 à 24 caractères.';return}
+ $('knm').textContent='Création…';const r=await srvReq('POST','/api/admin/keys',{pseudo:p},1);
+ if(!r.ok){$('knm').textContent='Échec ('+(r.st||'serveur injoignable ou non configuré')+').';return}
+ $('knm').textContent='Clé de '+p+' : '+r.j.key+' (copiée). Il se connecte avec ce pseudo + cette clé.';$('knp').value='';
+ try{navigator.clipboard.writeText(r.j.key)}catch(e){}if($('kdr').classList.contains('on'))loadKeys()};
 $('asend').onclick=()=>pub({x:$('atx').value.trim()});
 $('aclr').onclick=()=>{$('atx').value='';pub({x:''})};
 $('alkb').onclick=()=>pub({l:ST.l?0:1});
@@ -568,7 +640,7 @@ $('adsv2').onclick=()=>{
 };
 
 // connexions OAuth génériques (GitHub, Twitter/X, Roblox) : le code est échangé par ton worker, jamais par le site
-function workerBase(){try{return (VA||'').trim().replace(/\/+$/,'')}catch(e){return ''}}
+function workerBase(){try{return (VA||ST.w||'').trim().replace(/\/+$/,'')}catch(e){return ''}}
 function randB64url(n){const b=new Uint8Array(n);crypto.getRandomValues(b);return b64(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 async function pkceChallenge(v){const d=await crypto.subtle.digest('SHA-256',enc.encode(v));return b64(new Uint8Array(d)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function profX(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
@@ -647,7 +719,7 @@ setInterval(()=>{if(ME&&ME.admin&&LM)fetch('https://ntfy.sh/'+CFG.topic,{method:
 if(window.crypto&&crypto.subtle){
  crypto.subtle.importKey('jwk',CFG.pub,{name:'ECDSA',namedCurve:'P-256'},false,['verify']).then(k=>{pubKey=k;sync()});
  try{const m=sessionStorage.getItem('kr_m');if(m){$('kerr').textContent=m;sessionStorage.removeItem('kr_m')}
-  const sk=localStorage.getItem('kr_k');if(sk){$('key').value=sk;open_()}}catch(e){}
+  $('rem').checked=localStorage.getItem('kr_rem')!=='0';const sk=localStorage.getItem('kr_k');if(sk){$('key').value=sk;$('pseudo').value=localStorage.getItem('kr_p')||'';open_()}}catch(e){}
 }
 $('fmt').onchange=()=>{$('cust').style.display=$('fmt').value==='cu'?'block':'none'};
 

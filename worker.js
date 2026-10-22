@@ -72,12 +72,77 @@ async function handleCallback(platform,url,env){
  }catch(e){return back('oe='+platform)}
 }
 
+// ===== Utilisateurs, IP / région et clés liées à un pseudo =====
+// Nécessite un KV Namespace lié à ce worker sous le nom « KR » (voir LISEZMOI).
+// Les routes /api/admin/* exigent une signature de l'admin (même clé privée que le site).
+const ADMIN_PUB={"kty": "EC", "crv": "P-256", "x": "1dXFdekT3anlosYRdZPTMi1DtMT6Y06BM9gCWm7T0RQ", "y": "5OoFcI8GNO3uRgjMLRWAFXe81iLMJ11kJGIVy5X6zTU"};
+const sha256=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+async function adminOK(req,path,body){
+ const ts=req.headers.get('X-Ts'),sg=req.headers.get('X-Sig');if(!ts||!sg||Math.abs(Date.now()-(+ts))>300000)return false;
+ try{const k=await crypto.subtle.importKey('jwk',ADMIN_PUB,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+  return await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},k,Uint8Array.from(atob(sg),c=>c.charCodeAt(0)),new TextEncoder().encode(ts+'\n'+path+'\n'+body))}catch(e){return false}}
+async function listAll(env,prefix){const o=[];let cursor;do{const r=await env.KR.list({prefix,cursor});for(const k of r.keys){const v=await env.KR.get(k.name);if(v)o.push({name:k.name,v:JSON.parse(v)})}cursor=r.list_complete?undefined:r.cursor}while(cursor&&o.length<1000);return o}
+async function api(req,env,url){
+ if(!env.KR)return out({error:'KV non configuré (binding KR)'},500);
+ const path=url.pathname,body=req.method==='POST'?await req.text():'';let j={};try{j=body?JSON.parse(body):{}}catch(e){}
+ const cf=req.cf||{},geo={ip:req.headers.get('CF-Connecting-IP')||'',country:cf.country||'',region:cf.region||'',city:cf.city||''};
+ const okP=p=>typeof p==='string'&&p.trim().length>=2&&p.trim().length<=24;
+ const seen=async(pseudo,kid,via)=>{const id='user:'+encodeURIComponent(pseudo.toLowerCase());
+  const o=JSON.parse(await env.KR.get(id)||'null')||{first:Date.now(),n:0};
+  await env.KR.put(id,JSON.stringify({...o,pseudo,kid,via,...geo,last:Date.now(),n:(o.n||0)+1}));return o.role||'membre'};
+ const roleOf=async p=>(JSON.parse(await env.KR.get('user:'+encodeURIComponent(p.toLowerCase()))||'null')||{}).role||'membre';
+ if(path==='/api/login'||path==='/api/ping'){
+  const k=String(j.k||''),p=String(j.pseudo||'').trim();
+  if(!/^\d{8}$/.test(k)||!okP(p))return out({error:'invalid'},401);
+  const hk='key:'+await sha256('kr:'+k),r=JSON.parse(await env.KR.get(hk)||'null');
+  if(!r||r.pseudo.toLowerCase()!==p.toLowerCase())return out({error:'invalid'},401);
+  if(r.rev)return out({error:'revoked'},401);
+  const role=await roleOf(r.pseudo);if(role==='bloque')return out({error:'blocked'},401);
+  if(path==='/api/login'){r.uses=(r.uses||0)+1;r.last=Date.now();await env.KR.put(hk,JSON.stringify(r));await seen(r.pseudo,r.id,'key')}
+  return out({ok:true,pseudo:r.pseudo,role});
+ }
+ if(path==='/api/seen'){ // clés classiques / admin : on enregistre juste pseudo + IP + région
+  if(!okP(j.pseudo))return out({error:'invalid'},400);
+  const role=await seen(String(j.pseudo).trim(),j.kid,'legacy');return out({ok:true,role});
+ }
+ if(path==='/api/role'){
+  if(!okP(j.pseudo))return out({error:'invalid'},400);
+  return out({ok:true,role:await roleOf(String(j.pseudo).trim())});
+ }
+ if(path.startsWith('/api/admin/')){
+  if(!await adminOK(req,path,body))return out({error:'admin requis'},403);
+  if(path==='/api/admin/users'){const l=await listAll(env,'user:');return out({users:l.map(x=>x.v).sort((a,b)=>b.last-a.last)})}
+  if(path==='/api/admin/users/role'){
+   if(!['membre','vip','modo','bloque'].includes(j.role))return out({error:'rôle invalide'},400);
+   const id='user:'+encodeURIComponent(String(j.pseudo||'').toLowerCase()),o=JSON.parse(await env.KR.get(id)||'null');
+   if(!o)return out({error:'introuvable'},404);o.role=j.role;await env.KR.put(id,JSON.stringify(o));return out({ok:true});
+  }
+  if(path==='/api/admin/users/del'){await env.KR.delete('user:'+encodeURIComponent(String(j.pseudo||'').toLowerCase()));return out({ok:true})}
+  if(path==='/api/admin/keys'&&req.method==='GET'){const l=await listAll(env,'key:');return out({keys:l.map(x=>x.v).sort((a,b)=>b.created-a.created)})}
+  if(path==='/api/admin/keys'&&req.method==='POST'){
+   if(!okP(j.pseudo))return out({error:'pseudo invalide'},400);
+   let key,hk;for(let i=0;i<5;i++){key=String(crypto.getRandomValues(new Uint32Array(1))[0]%90000000+10000000);hk='key:'+await sha256('kr:'+key);if(!await env.KR.get(hk))break}
+   const r={id:hk.slice(4,16),pseudo:String(j.pseudo).trim(),key,created:Date.now(),rev:0,uses:0};
+   await env.KR.put(hk,JSON.stringify(r));return out(r);
+  }
+  if(path==='/api/admin/keys/rev'||path==='/api/admin/keys/del'){
+   const id=String(j.id||'').replace(/[^0-9a-f]/g,'');if(id.length<12)return out({error:'id'},400);
+   const f=(await env.KR.list({prefix:'key:'+id})).keys[0];if(!f)return out({error:'introuvable'},404);
+   if(path.endsWith('/del'))await env.KR.delete(f.name);
+   else{const r=JSON.parse(await env.KR.get(f.name));r.rev=j.rev?1:0;await env.KR.put(f.name,JSON.stringify(r))}
+   return out({ok:true});
+  }
+ }
+ return out({error:'route inconnue'},404);
+}
+
 export default {
  async fetch(req,env){
   if(req.method==='OPTIONS')return new Response(null,{headers:{...CORS,'Access-Control-Allow-Headers':'*'}});
   const url=new URL(req.url);
   const m=url.pathname.match(/^\/oauth\/(github|twitter|roblox)\/callback$/);
   if(m)return handleCallback(m[1],url,env);
+  if(url.pathname.startsWith('/api/'))return api(req,env,url);
 
   const q=url.searchParams;
   const u=(q.get('u')||'').trim(),p=q.get('p')||'Discord';
