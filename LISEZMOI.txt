@@ -102,7 +102,7 @@ Deux choses que ce site ne peut pas faire
 - Statistiques globales partagées par tous les visiteurs : pareil, ça
   demanderait un serveur central qui reçoit les données de tout le monde.
 
-Discord : https://discord.gg/4Sr4AvRahb
+Discord : https://discord.gg/Uxc4mj9tS9
 
 
 === Pseudos, clés liées à un pseudo, IP et région (admin) ===
