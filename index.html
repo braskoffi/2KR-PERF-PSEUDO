@@ -96,12 +96,13 @@ main{padding-top:72px}
 <div class="ico">🎯</div>
 <h1>Welcome back<b>.</b></h1>
 <p class="sub">Entre ta clé pour ouvrir ta session.</p>
-<label>Pseudo</label>
-<input id="pseudo" maxlength="24" placeholder="Ton pseudo" autocomplete="username">
-<label>Clé d'accès</label>
+<label id="plab">Pseudo (obligatoire)</label>
+<input id="pseudo" required maxlength="24" placeholder="Ton pseudo" autocomplete="username">
+<label id="klab">Clé d'accès</label>
 <input id="key" type="password" inputmode="numeric" maxlength="10" placeholder="••••••" autocomplete="off">
 <label style="display:flex;align-items:center;gap:10px;margin:12px 0;cursor:pointer;font-size:14px"><input type="checkbox" id="rem" checked style="width:20px;height:20px;margin:0;flex:none"> Rester connecté sur cet appareil</label>
 <button class="btn" id="open">Ouvrir l'espace</button>
+<button class="btn alt" id="regt" type="button">Créer ma clé</button>
 <div class="note" id="kerr"></div>
 <a href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:14px;color:#e9a6ff;font-size:13px">Rejoindre le serveur Discord ↗</a>
 </div></div>
@@ -118,7 +119,7 @@ main{padding-top:72px}
 <svg width="0" height="0" style="position:absolute"><defs><filter id="gooF"><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter></defs></svg>
 <header id="top"><button id="burger" aria-label="Menu" aria-expanded="false"><i></i><i></i><i></i></button><div id="clock"><b id="ck">--:--:--</b><span id="cd"></span></div></header>
 <div id="menu"><div class="goo" id="goo"></div><div id="items">
-<button class="mi on" data-t="ov">Aperçu</button><button class="mi" data-t="scan">Scan</button><button class="mi" data-t="res">Résultats</button><button class="mi" data-t="perf">Perf</button><button class="mi" data-t="con">Connexion</button><button class="mi" data-t="ia">IA</button><button class="mi" data-t="adm" id="nadm" style="display:none">Admin</button><button class="mi" id="langBtn">🌐 Langue</button><button class="mi" id="themeBtn">🎨 Réglages</button><a class="mi" href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener">Discord ↗</a>
+<button class="mi on" data-t="ov">Aperçu</button><button class="mi" data-t="scan">Scan</button><button class="mi" data-t="res">Résultats</button><button class="mi" data-t="perf">Perf</button><button class="mi" data-t="rk">🏆 Classement</button><button class="mi" data-t="botx">🤖 Bot Discord</button><button class="mi" data-t="con">Connexion</button><button class="mi" data-t="ia">IA</button><button class="mi" data-t="adm" id="nadm" style="display:none">Admin</button><button class="mi" id="langBtn">🌐 Langue</button><button class="mi" id="logoutBtn">🚪 Déconnexion</button><button class="mi" id="themeBtn">🎨 Réglages</button><a class="mi" href="https://discord.gg/4Sr4AvRahb" target="_blank" rel="noopener">Discord ↗</a>
 </div><div id="water"></div></div>
 <main>
 
@@ -281,6 +282,16 @@ main{padding-top:72px}
 </div>
 </section>
 
+<section id="rk"><div class="mono">Espace / Classement</div><h1>Classement</h1><p class="sub">Les membres qui ont trouvé le plus de pseudos disponibles (disponibles / vérifiés).</p><div id="rkl"></div><div class="note" id="rkn"></div></section>
+
+<section id="botx"><div class="mono">Espace / Bot</div><h1>Bot Discord</h1>
+<p class="sub">Ajoute le bot 2KR sur ton propre serveur : il installe les rôles, les salons et le règlement au style du site.</p>
+<div class="card"><a class="btn" id="botadd" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">🤖 Ajouter le bot à mon serveur</a>
+<button class="btn alt" id="botcp">Copier le lien d'invitation</button><div class="note" id="botn"></div></div>
+<div class="card" style="margin-top:12px"><div class="k">Comment l'utiliser</div>
+<div class="note">1. Clique sur « Ajouter » et choisis ton serveur (il faut la permission « Gérer le serveur »).<br>2. Le bot demande la permission Administrateur : elle lui sert à créer les rôles et les salons.<br>3. Dans ton serveur, tape <b class="notranslate">/setup</b> (réservé aux administrateurs) : tout est installé.<br>4. <b class="notranslate">/dispo pseudo</b> vérifie si un pseudo est libre.<br>5. Les nouveaux arrivants reçoivent automatiquement le rôle Membre et un message de bienvenue.</div></div>
+</section>
+
 <section id="adm">
 <div class="mono">Espace / Admin</div>
 <h1>Admin</h1><p class="sub">Tout ce que tu fais ici apparaît en direct chez tout le monde.</p>
@@ -298,6 +309,11 @@ main{padding-top:72px}
 <input id="adc" inputmode="numeric" maxlength="25" placeholder="123456789012345678">
 <button class="btn" id="adsv">Enregistrer pour tous</button>
 <div class="note" id="adn"></div></div>
+<div class="card" style="margin-top:12px"><label>Client ID du bot Discord (visible par tous dans l'onglet « Bot Discord »)</label>
+<input id="abt" inputmode="numeric" maxlength="25" placeholder="123456789012345678">
+<button class="btn" id="abtsv">Enregistrer pour tous</button>
+<div class="note" id="abn"></div>
+<div class="note">ID = Developer Portal > ton application > General Information > Application ID. Pour que tout le monde puisse l'ajouter, active « Public Bot » dans l'onglet Bot. Limites Discord : au-delà de 10 serveurs, /creer-serveur ne marche plus ; au-delà de 100, Discord demande de faire vérifier le bot.</div></div>
 <div class="card" style="margin-top:12px"><div class="k">Autres connexions par compte</div>
 <label>Pseudo du bot Telegram (sans @, via @BotFather)</label>
 <input id="atg" maxlength="32" placeholder="moncoolbot">
@@ -313,8 +329,10 @@ main{padding-top:72px}
 <div class="card" style="margin-top:12px"><label>Adresse du serveur (Cloudflare Worker avec KV)</label>
 <input id="aws" placeholder="https://mon-worker.workers.dev"><button class="btn" id="awsv">Enregistrer pour tous</button>
 <div class="note">Nécessaire pour les clés liées à un pseudo, la liste des utilisateurs, leur IP et leur région.</div></div>
+<div class="card" style="margin-top:12px"><div class="k">Inscription libre (les visiteurs créent leur clé avec un pseudo)</div><div class="note" id="regn"></div><button class="btn alt" id="regb">…</button></div>
 <div class="card" style="margin-top:12px"><button class="btn alt" id="udb">👥 Utilisateurs ▾</button>
-<div id="udr" class="drw"><div id="ul"></div></div></div>
+<div id="udr" class="drw"><input id="uq" placeholder="Rechercher un pseudo…" style="margin-top:10px" autocomplete="off"><div class="two"><input id="nup" maxlength="24" placeholder="Nouveau pseudo" autocomplete="off"><select id="nur"></select></div><button class="btn" id="nub">Ajouter / changer le rôle</button><button class="btn alt" id="uexp">Exporter la liste (.csv)</button><div class="note" id="unm"></div><div id="ul"></div></div></div>
+<div class="card" style="margin-top:12px"><button class="btn alt" id="ldb">📜 Journal d’activité ▾</button><div id="ldr" class="drw"><div id="ll"></div></div></div>
 <div class="card" style="margin-top:12px"><div class="k">Créer une clé liée à un pseudo</div>
 <input id="knp" maxlength="24" placeholder="Pseudo de la personne"><button class="btn" id="knb">Créer la clé</button>
 <div class="note notranslate" id="knm"></div><button class="btn alt" id="kdb">🔑 Clés créées ▾</button>
@@ -342,7 +360,7 @@ function saveOpt(){try{localStorage.setItem('kr_opt',JSON.stringify(OPT))}catch(
 applyOpt();
 $('themeBtn').onclick=()=>{closeMenu();stDraw();$('st').classList.add('on')};
 function go(t){document.querySelectorAll('.mi[data-t],section').forEach(e=>e.classList.remove('on'));
- document.querySelector('.mi[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure()}
+ document.querySelector('.mi[data-t="'+t+'"]').classList.add('on');$(t).classList.add('on');if(t==='perf')measure();if(t==='rk')loadTop()}
 document.querySelectorAll('.mi[data-t]').forEach(b=>b.onclick=()=>{go(b.dataset.t);closeMenu()});
 function tick(){clearTimeout(TK);const n=new Date();$('ck').textContent=n.toLocaleTimeString('fr-FR',{hour12:!!OPT.h12,hour:'2-digit',minute:'2-digit',second:OPT.sec?'2-digit':undefined});
  $('cd').style.display=OPT.date?'':'none';$('cd').textContent=n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});TK=setTimeout(tick,1000-n.getMilliseconds()+5)}tick();
@@ -439,6 +457,7 @@ function lgDraw(){const q=$('lgq').value.toLowerCase();$('lgl').innerHTML='';
 $('langBtn').onclick=()=>{closeMenu();$('lgq').value='';lgDraw();$('lg').classList.add('on')};
 $('lgq').oninput=lgDraw;$('lgx').onclick=()=>$('lg').classList.remove('on');
 ['la','lu','lv','favlist','ck','cd','log'].forEach(id=>$(id)&&$(id).classList.add('notranslate'));
+try{if(!sessionStorage.getItem('kr_lok')){sessionStorage.setItem('kr_lok','1');const ex='=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';['','; domain='+location.hostname,'; domain=.'+location.hostname].forEach(d=>{document.cookie='googtrans'+ex+d})}}catch(e){}
 if(/googtrans=\/fr\/[^;]+/.test(document.cookie)){window.gtInit=()=>new google.translate.TranslateElement({pageLanguage:'fr',autoDisplay:false},'gt');
  const s=document.createElement('script');s.src='https://translate.google.com/translate_a/element.js?cb=gtInit';document.head.appendChild(s)}
 const THEMES=[['dark','Violet','#c04dff'],['light','Clair','#9020d8'],['ocean','Océan','#3da8ff'],['forest','Forêt','#3ddc84'],['rose','Rose','#ff4da6'],['sunset','Coucher de soleil','#ff8a3d'],['blood','Rouge','#ff3d4a'],['gold','Or','#ffd23d'],['mono','Noir AMOLED','#ffffff']];
@@ -456,9 +475,25 @@ function stDraw(){const cur=document.documentElement.dataset.theme||'dark',b=$('
  row('Format de l heure','h12',[['24 h',0],['12 h',1]]);
  row('Secondes','sec',[['Afficher',1],['Masquer',0]]);
  row('Date sous l heure','date',[['Afficher',1],['Masquer',0]]);
+ if(ME&&ME.srv){lab('Mon compte');
+  const msg=document.createElement('div');msg.className='note notranslate';
+  const inp=(ph,ml)=>{const i=document.createElement('input');i.placeholder=ph;i.maxLength=ml;i.autocomplete='off';i.style.marginBottom='6px';b.appendChild(i);return i};
+  const bt=(t,fn)=>{const x=document.createElement('button');x.className='btn alt';x.style.marginTop='0';x.textContent=t;x.onclick=fn;b.appendChild(x)};
+  const ik=inp('Nouvelle clé (8 chiffres)',8);
+  bt('Changer ma clé',async()=>{const v=ik.value.trim();if(!/^\d{8}$/.test(v)){msg.textContent='La clé doit faire 8 chiffres.';return}
+   const r=await srvReq('POST','/api/me/key',{k:ME.k,pseudo:ME.pseudo,newKey:v});
+   if(!r.ok){msg.textContent=r.st===409?'Cette clé est déjà utilisée.':r.j.error==='weak'?'Clé trop simple.':'Échec ('+(r.st||'serveur injoignable')+').';return}
+   ME.k=v;try{if(localStorage.getItem('kr_k'))localStorage.setItem('kr_k',v)}catch(e){}ik.value='';msg.textContent='Clé modifiée : '+v+'. Note-la bien.'});
+  const ip=inp('Nouveau pseudo',24);
+  bt('Changer mon pseudo',async()=>{const v=ip.value.trim();if(!/^[\p{L}\p{N}_.\- ]{2,24}$/u.test(v)){msg.textContent='Pseudo invalide (2 à 24 caractères).';return}
+   const r=await srvReq('POST','/api/me/pseudo',{k:ME.k,pseudo:ME.pseudo,newPseudo:v});
+   if(!r.ok){msg.textContent=r.st===409?'Ce pseudo est déjà pris.':'Échec ('+(r.st||'serveur injoignable')+').';return}
+   ME.pseudo=r.j.pseudo;try{if(localStorage.getItem('kr_k'))localStorage.setItem('kr_p',ME.pseudo)}catch(e){}ip.value='';msg.textContent='Pseudo modifié : '+ME.pseudo});
+  b.appendChild(msg)}
 }
 $('stx').onclick=()=>$('st').classList.remove('on');
 $('str').onclick=()=>{OPT={...OD};saveOpt();document.documentElement.dataset.theme='dark';try{localStorage.setItem('kr_theme','dark')}catch(e){}stDraw();tick()};
+$('logoutBtn').onclick=()=>{try{localStorage.removeItem('kr_k');localStorage.removeItem('kr_p')}catch(e){}location.reload()};
 $('burger').onclick=()=>MO?closeMenu():openMenu();
 document.addEventListener('pointerdown',e=>{if(MO&&!e.target.closest('#menu,#burger'))closeMenu()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
@@ -468,7 +503,7 @@ const CFG={"salt":"c131613f37e42893e750cf140fa0d02b","keys":["5bfbc21c6fdb54e5d3
 const enc=new TextEncoder(),dec=new TextDecoder();
 const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-let ST={t:0,x:'',l:0,r:[],d:'',tg:'',gh:'',tw:'',rb:'',w:''},ME=null,dis=0,pubKey=null,LM='',RDY;
+let ST={t:0,x:'',l:0,r:[],d:'',tg:'',gh:'',tw:'',rb:'',w:'',b:''},ME=null,dis=0,pubKey=null,LM='',RDY;
 const rdy=new Promise(r=>{RDY=r;setTimeout(r,2500)});
 
 const srv=()=>{let v='';try{v=VA||''}catch(e){}return(ST.w||v||'').trim().replace(/\/+$/,'')};
@@ -493,7 +528,7 @@ async function open_(){
  const k=$('key').value.trim(),ps=$('pseudo').value.trim();
  if(!window.crypto||!crypto.subtle){$('kerr').textContent='Ouvre le site en https pour te connecter.';return}
  if(Date.now()<until){$('kerr').textContent='Trop d\'essais. Réessaie dans '+Math.ceil((until-Date.now())/1000)+' s.';return}
- if(!/^\d{10}$/.test(k)&&(ps.length<2||ps.length>24)){$('kerr').textContent='Entre ton pseudo (2 à 24 caractères).';return}
+ if(!/^\d{10}$/.test(k)&&!/^[\p{L}\p{N}_.\- ]{2,24}$/u.test(ps)){$('kerr').textContent='Entre ton pseudo (2 à 24 caractères : lettres, chiffres, _ . - ). Sans pseudo, pas d’accès.';try{localStorage.removeItem('kr_k')}catch(e){}$('pseudo').focus();return}
  $('kerr').textContent='Vérification…';
  let me=await login(k);await rdy;let sm='';
  if(!me&&/^\d{8}$/.test(k)){const r=await srvReq('POST','/api/login',{k,pseudo:ps});
@@ -506,26 +541,39 @@ async function open_(){
   else{localStorage.removeItem('kr_k');localStorage.removeItem('kr_p');localStorage.setItem('kr_rem',$('rem').checked?'1':'0')}}catch(e){}
  if(!me.srv)srvReq('POST','/api/seen',{pseudo:me.pseudo,kid:me.kid}).then(r=>{me.role=r.j.role;if(r.j.role==='bloque')kickMe('Accès bloqué par un admin.')});
  if(!me.srv&&!me.admin)setInterval(async()=>{const r=await srvReq('POST','/api/role',{pseudo:me.pseudo});if(r.ok){me.role=r.j.role;if(r.j.role==='bloque')kickMe('Accès bloqué par un admin.')}},60000);
- if(me.srv)setInterval(async()=>{const r=await srvReq('POST','/api/ping',{k,pseudo:ps});if(r.ok)me.role=r.j.role;if(r.st===401)kickMe(r.j.error==='blocked'?'Accès bloqué par un admin.':'Cette clé a été révoquée.')},60000);
- $('nadm').style.display=me.admin?'':'none';
+ if(me.srv)setInterval(async()=>{const r=await srvReq('POST','/api/ping',{k:me.k,pseudo:me.pseudo});if(r.ok)me.role=r.j.role;if(r.st===401)kickMe(r.j.error==='blocked'?'Accès bloqué par un admin.':'Cette clé a été révoquée.')},60000);
+ $('nadm').style.display=me.admin?'':'none';if(me.admin)setTimeout(regLoad,800);
  $('login').style.display='none';$('boot').style.display='flex';
  const m=['Synchronisation des réglages…','Démarrage du moteur…','Connexion de la session…'];let p=0;
  const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on');render();try{const t=sessionStorage.getItem('kr_t');if(t){sessionStorage.removeItem('kr_t');go(t)}}catch(e){}},250)}
   $('bp').style.width=p+'%';$('bt').textContent=m[Math.min(2,Math.floor(p/34))]},140);
 }
-$('open').onclick=open_;$('key').onkeydown=e=>{if(e.key==='Enter')open_()};
+$('key').oninput=()=>{$('plab').textContent=/^\d{10}$/.test($('key').value.trim())?'Pseudo (facultatif pour la clé admin)':'Pseudo (obligatoire)'};
+let REG=0;
+function regMode(on){REG=on;$('klab').textContent=on?'Ta clé : 8 chiffres de ton choix (vide = générée pour toi)':"Clé d'accès";$('key').type=on?'text':'password';$('key').maxLength=on?8:10;$('key').placeholder=on?'ex : 48271905':'••••••';$('key').value='';$('open').textContent=on?'Créer ma clé':"Ouvrir l'espace";$('regt').textContent=on?'← J’ai déjà une clé':'Créer ma clé';$('plab').textContent=on?'Choisis ton pseudo':'Pseudo (obligatoire)';$('kerr').textContent=''}
+async function register(){const ps=$('pseudo').value.trim();
+ if(!/^[\p{L}\p{N}_.\- ]{2,24}$/u.test(ps)){$('kerr').textContent='Pseudo de 2 à 24 caractères (lettres, chiffres, _ . - ).';return}
+ const mk=$('key').value.trim();if(mk&&!/^\d{8}$/.test(mk)){$('kerr').textContent='Ta clé doit faire exactement 8 chiffres (ou laisse vide).';return}
+ $('kerr').textContent='Création…';await rdy;
+ const r=await srvReq('POST','/api/register',mk?{pseudo:ps,key:mk}:{pseudo:ps});
+ if(!r.ok){$('kerr').textContent=r.st===409?(r.j.error==='keytaken'?'Cette clé est déjà utilisée, choisis-en une autre.':'Ce pseudo est déjà pris.'):r.st===400&&r.j.error==='weak'?'Clé trop simple (ex : 11111111). Choisis-en une moins devinable.':r.st===403?'Les inscriptions sont fermées par l’admin.':r.st===429?'Trop de créations depuis ta connexion. Réessaie demain.':'Serveur injoignable ou non configuré.';return}
+ regMode(0);$('key').type='text';$('key').maxLength=10;$('key').value=r.j.key;$('kerr').classList.add('notranslate');
+ $('kerr').textContent='Compte créé ! Pseudo : '+ps+' · clé : '+r.j.key+'. Note-la bien, puis appuie sur « Ouvrir l’espace ».';try{navigator.clipboard.writeText(r.j.key)}catch(e){}}
+$('regt').onclick=()=>regMode(!REG);$('pseudo').onkeydown=e=>{if(e.key==='Enter')$('open').click()};
+$('open').onclick=()=>REG?register():open_();$('key').onkeydown=e=>{if(e.key==='Enter')open_()};
 
 // temps réel : état signé par l'admin, diffusé via ntfy.sh
 function render(){
  if(!ME)return;
  if(ME.kid>0&&ST.r.includes(ME.kid)){try{localStorage.removeItem('kr_k');sessionStorage.setItem('kr_m','Cette clé a été révoquée.')}catch(e){}location.reload();return}
  const lock=!!ST.l&&!ME.admin;
- $('olk').classList.toggle('on',lock);accRender();
+ $('olk').classList.toggle('on',lock);accRender();botRender();
  $('obt').textContent=ST.x;$('obg').classList.toggle('on',!!ST.x&&dis!==ST.t&&!lock);
  if(ME.admin){$('alkb').textContent=ST.l?'Déverrouiller le site':'Verrouiller le site pour tous';
   $('alk').textContent=ST.l?'Le site est verrouillé : seuls les admins y accèdent.':'Le site est ouvert.';
   $('adn').textContent='Actuel : '+(ST.d||'aucun')+' · À ajouter dans Discord > OAuth2 > Redirects : '+location.origin+location.pathname;
   $('arl').textContent='Clés révoquées : '+(ST.r.length?ST.r.join(', '):'aucune');
+  if(document.activeElement!==$('abt'))$('abt').value=ST.b||'';$('abn').textContent='Actuel : '+(ST.b||'aucun');
   if(document.activeElement!==$('aws'))$('aws').value=ST.w||'';const wb=workerBase();
   $('adn2').textContent='Actuel : Telegram='+(ST.tg||'aucun')+' · GitHub='+(ST.gh||'aucun')+' · Twitter/X='+(ST.tw||'aucun')+' · Roblox='+(ST.rb||'aucun')+
    (wb?(' · Redirect URIs à enregistrer sur chaque plateforme (doivent être strictement identiques) : GitHub='+wb+'/oauth/github/callback · Twitter/X='+wb+'/oauth/twitter/callback · Roblox='+wb+'/oauth/roblox/callback'):' · Renseigne d\'abord ton serveur (Mon serveur) pour voir les Redirect URIs à enregistrer.')
@@ -542,7 +590,7 @@ function sync(){
  es.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.event==='message')onMsg(d.message)}catch(_){}};
 }
 async function pub(n){
- const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,d:ST.d||'',tg:ST.tg||'',gh:ST.gh||'',tw:ST.tw||'',rb:ST.rb||'',w:ST.w||'',...n},p=JSON.stringify(s);
+ const s={t:Math.max(Date.now(),ST.t+1),x:ST.x,l:ST.l,r:ST.r,d:ST.d||'',tg:ST.tg||'',gh:ST.gh||'',tw:ST.tw||'',rb:ST.rb||'',w:ST.w||'',b:ST.b||'',...n},p=JSON.stringify(s);
  const g=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(p)));
  LM=JSON.stringify({p,s:g});
  try{const r=await fetch('https://ntfy.sh/'+CFG.topic,{method:'POST',body:LM});if(!r.ok)throw 0;ST=s;render();$('ast').textContent='Envoyé à tout le monde ✓'}
@@ -555,13 +603,16 @@ const fdt=t=>t?new Date(t).toLocaleString('fr-FR'):'—';
 const ROLES={membre:'Membre',vip:'VIP',modo:'Modérateur',bloque:'Bloqué'};
 const drw=(btn,box,fn)=>{btn.onclick=()=>{const on=!box.classList.contains('on');box.classList.toggle('on',on);btn.textContent=btn.textContent.replace(/[▴▾]$/,on?'▴':'▾');if(on)fn()}};
 const srvErr=(l,r)=>{l.textContent=srv()?'Erreur serveur ('+(r.st||'injoignable')+') : vérifie le worker (KV « KR » et clé admin).':'Renseigne d’abord l’adresse du serveur.'};
+let US=[];
 async function loadUsers(){const l=$('ul');l.textContent='Chargement…';const r=await srvReq('GET','/api/admin/users',null,1);
  if(!r.ok){srvErr(l,r);return}
- const us=r.j.users||[];l.textContent=us.length?'':'Aucun utilisateur pour le moment.';$('udb').textContent='👥 Utilisateurs ('+us.length+') ▴';
+ US=r.j.users||[];drawUsers()}
+function drawUsers(){const l=$('ul'),q=($('uq').value||'').trim().toLowerCase(),us=US.filter(u=>!q||u.pseudo.toLowerCase().includes(q));l.textContent=us.length?'':'Aucun utilisateur.';$('udb').textContent='👥 Utilisateurs ('+US.length+') ▴';
  us.forEach(u=>{const row=el('div','ur'),hd=el('div');hd.style.cssText='display:flex;justify-content:space-between;gap:8px';hd.append(el('b','notranslate',u.pseudo),el('span','',(ROLES[u.role||'membre']||'Membre')+' · '+ago(u.last)));
   const d=el('div','ud');
-  [['IP',u.ip||'—'],['Région',[u.city,u.region,u.country].filter(Boolean).join(', ')||'—'],['Dernière connexion',fdt(u.last)],['Première connexion',fdt(u.first)],['Connexions',u.n||0],['Type',u.via==='key'?'clé du serveur':'clé classique']]
+  [['IP',u.ip||'—'],['Région',[u.city,u.region,u.country].filter(Boolean).join(', ')||'—'],['Dernière connexion',fdt(u.last)],['Première connexion',fdt(u.first)],['Connexions',u.n||0],['Type',u.via==='self'?'inscription libre':u.via==='key'?'clé créée par admin':'clé classique']]
    .forEach(([a,b])=>{const p=el('div');p.append(a+' : ',el('b','notranslate',String(b)));d.append(p)});
+  if(u.key){const kp=el('div'),kv=el('b','notranslate','••••••••');kv.onclick=e=>{e.stopPropagation();kv.textContent=kv.textContent[0]==='•'?u.key:'••••••••'};kp.append('Clé (touche pour voir) : ',kv);d.append(kp)}
   const sel=el('select');sel.style.cssText='background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit';
   Object.keys(ROLES).forEach(r=>{const o=el('option','',ROLES[r]);o.value=r;if((u.role||'membre')===r)o.selected=true;sel.append(o)});
   sel.onclick=e=>e.stopPropagation();sel.onchange=async()=>{await srvReq('POST','/api/admin/users/role',{pseudo:u.pseudo,role:sel.value},1);loadUsers()};
@@ -582,7 +633,23 @@ async function loadKeys(){const l=$('kl');l.textContent='Chargement…';const r=
   act(k.rev?'Rétablir':'Révoquer',()=>srvReq('POST','/api/admin/keys/rev',{id:k.id,rev:k.rev?0:1},1));
   act('Supprimer',()=>srvReq('POST','/api/admin/keys/del',{id:k.id},1));
   row.append(hd,d);row.onclick=()=>row.classList.toggle('on');l.append(row)})}
-drw($('udb'),$('udr'),loadUsers);drw($('kdb'),$('kdr'),loadKeys);
+const LEV={login:'Connexion',register:'Nouveau compte',role:'Rôle changé',keynew:'Clé créée par admin',keyrev:'Clé révoquée',keyrestore:'Clé rétablie',keydel:'Clé supprimée',mykey:'Clé modifiée',mypseudo:'Pseudo modifié'};
+async function loadLog(){const l=$('ll');l.textContent='Chargement…';const r=await srvReq('GET','/api/admin/log',null,1);if(!r.ok){srvErr(l,r);return}
+ const a=r.j.log||[];l.textContent=a.length?'':'Aucune activité.';$('ldb').textContent='📜 Journal d’activité ('+a.length+') ▴';
+ a.forEach(e=>{const row=el('div','ur'),hd=el('div');hd.style.cssText='display:flex;justify-content:space-between;gap:8px';
+  hd.append(el('b','notranslate',(LEV[e.t]||e.t)+(e.pseudo?' · '+e.pseudo:'')),el('span','',ago(e.ts)));row.append(hd);
+  const det=[e.role&&'Rôle : '+(ROLES[e.role]||e.role),e.via&&'Type : '+e.via,e.ip&&'IP : '+e.ip,e.region&&'Région : '+e.region].filter(Boolean).join(' · ');
+  if(det)row.append(el('div','k notranslate',det));l.append(row)})}
+drw($('ldb'),$('ldr'),loadLog);
+let REGOPEN=true;
+async function regLoad(){const r=await srvReq('GET','/api/regstate');if(!r.ok){$('regn').textContent='Serveur non configuré.';$('regb').textContent='—';return}REGOPEN=r.j.open;$('regn').textContent=REGOPEN?'Ouverte : n’importe qui peut créer une clé (3 par jour et par connexion).':'Fermée : seules tes clés créées fonctionnent.';$('regb').textContent=REGOPEN?'Fermer les inscriptions':'Rouvrir les inscriptions'}
+$('regb').onclick=async()=>{await srvReq('POST','/api/admin/reg',{open:!REGOPEN},1);regLoad()};
+drw($('udb'),$('udr'),loadUsers);
+Object.keys(ROLES).forEach(r=>{const o=el('option','',ROLES[r]);o.value=r;$('nur').append(o)});$('uq').oninput=drawUsers;
+$('nub').onclick=async()=>{const p=$('nup').value.trim();if(p.length<2||p.length>24){$('unm').textContent='Pseudo de 2 à 24 caractères.';return}
+ const r=await srvReq('POST','/api/admin/users/role',{pseudo:p,role:$('nur').value},1);$('unm').textContent=r.ok?p+' → '+ROLES[$('nur').value]:'Échec ('+(r.st||'serveur injoignable')+').';if(r.ok){$('nup').value='';loadUsers()}};
+$('uexp').onclick=()=>{const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"',rows=[['pseudo','role','ip','pays','region','ville','connexions','premiere','derniere'].join(',')].concat(US.map(u=>[u.pseudo,u.role||'membre',u.ip,u.country,u.region,u.city,u.n||0,fdt(u.first),fdt(u.last)].map(q).join(',')));
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv'}));a.download='utilisateurs.csv';a.click()};drw($('kdb'),$('kdr'),loadKeys);
 $('awsv').onclick=()=>pub({w:$('aws').value.trim().replace(/\/+$/,'')});
 $('knb').onclick=async()=>{const p=$('knp').value.trim();if(p.length<2||p.length>24){$('knm').textContent='Pseudo de 2 à 24 caractères.';return}
  $('knm').textContent='Création…';const r=await srvReq('POST','/api/admin/keys',{pseudo:p},1);
@@ -632,6 +699,10 @@ $('dlog').onclick=()=>{
  if(!cid()){accRender();return}
  location.href='https://discord.com/oauth2/authorize?client_id='+encodeURIComponent(cid())+'&response_type=token&scope=identify&redirect_uri='+encodeURIComponent(location.origin+location.pathname);
 };
+$('abtsv').onclick=()=>{const v=$('abt').value.trim();if(v===''||/^\d{15,25}$/.test(v))pub({b:v});else $('ast').textContent='Client ID invalide (chiffres uniquement).'};
+function botRender(){const id=ST.b||'',u=id?'https://discord.com/oauth2/authorize?client_id='+id+'&scope=bot+applications.commands&permissions=8':'',a=$('botadd');
+ a.style.display=u?'block':'none';$('botcp').style.display=u?'':'none';if(u)a.href=u;$('botn').textContent=u?'':'Le lien du bot n’a pas encore été configuré par l’admin.'}
+$('botcp').onclick=()=>{try{navigator.clipboard.writeText($('botadd').href);$('botn').textContent='Lien copié ✓'}catch(e){$('botn').textContent=$('botadd').href}};
 $('adsv').onclick=()=>{const v=$('adc').value.trim();if(v===''||/^\d{15,25}$/.test(v))pub({d:v});else $('ast').textContent='Client ID invalide (chiffres uniquement).'};
 $('adsv2').onclick=()=>{
  const tg=$('atg').value.trim(),gh=$('agh').value.trim(),tw=$('atw').value.trim(),rb=$('arb').value.trim();
@@ -909,6 +980,19 @@ function renderPstat(){
  const s=pstat(),cd=(k,v)=>'<div class="card"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
  $('pstat').innerHTML=cd('Pseudos vérifiés (total)',s.checked||0)+cd('Disponibles trouvés (total)',s.avail||0)+cd('Favoris surveillés',favs().length);
 }
+
+// classement + synchronisation des stats (comptes à pseudo/clé uniquement)
+let lastSync='';
+async function statSync(){if(!ME||!ME.srv||!srv())return;const s=pstat(),sig=(s.checked||0)+'/'+(s.avail||0);if(sig===lastSync||!s.checked)return;
+ const r=await srvReq('POST','/api/stats',{k:ME.k,pseudo:ME.pseudo,checked:s.checked||0,avail:s.avail||0});if(r.ok)lastSync=sig}
+setInterval(statSync,300000);
+const MEDAL=['🥇','🥈','🥉'];
+async function loadTop(){const l=$('rkl'),n=$('rkn');n.textContent='';l.textContent='Chargement…';await statSync();
+ const r=await srvReq('GET','/api/top');if(!r.ok){l.textContent='';n.textContent=srv()?'Classement indisponible pour le moment.':'Le serveur n’est pas configuré.';return}
+ const a=r.j.list||[];l.textContent='';if(!a.length){n.textContent='Personne dans le classement pour le moment.';return}
+ a.forEach((u,i)=>{const row=el('div','ur'),hd=el('div');hd.style.cssText='display:flex;justify-content:space-between;gap:8px';
+  hd.append(el('b','notranslate',(MEDAL[i]||'#'+(i+1))+' '+u.pseudo+(u.role&&u.role!=='membre'?' · '+(ROLES[u.role]||''):'')),el('span','notranslate',u.avail+' / '+u.checked));row.append(hd);l.append(row)});
+ n.textContent='Mis à jour toutes les 5 minutes. Seuls les comptes avec pseudo + clé y apparaissent ; les chiffres viennent de ton appareil.'}
 
 // favoris : liste de pseudos à surveiller, persistée sur cet appareil
 function favs(){try{return JSON.parse(localStorage.getItem('kr_fav')||'[]')}catch(e){return[]}}

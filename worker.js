@@ -82,10 +82,19 @@ async function adminOK(req,path,body){
  try{const k=await crypto.subtle.importKey('jwk',ADMIN_PUB,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
   return await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},k,Uint8Array.from(atob(sg),c=>c.charCodeAt(0)),new TextEncoder().encode(ts+'\n'+path+'\n'+body))}catch(e){return false}}
 async function listAll(env,prefix){const o=[];let cursor;do{const r=await env.KR.list({prefix,cursor});for(const k of r.keys){const v=await env.KR.get(k.name);if(v)o.push({name:k.name,v:JSON.parse(v)})}cursor=r.list_complete?undefined:r.cursor}while(cursor&&o.length<1000);return o}
-async function api(req,env,url){
+const weak=k=>/^(\d)\1{7}$/.test(k)||'01234567890123456789'.includes(k)||'98765432109876543210'.includes(k);
+// journal d'activité (conservé 30 jours)
+async function logEv(env,t,pseudo,extra){try{const ts=Date.now();await env.KR.put('log:'+ts+'-'+Math.random().toString(36).slice(2,6),JSON.stringify({ts,t,pseudo:pseudo||'',...extra}),{expirationTtl:2592000})}catch(e){}}
+async function recent(env,prefix,n){const names=[];let cursor;do{const r=await env.KR.list({prefix,cursor});names.push(...r.keys.map(k=>k.name));cursor=r.list_complete?undefined:r.cursor}while(cursor&&names.length<5000);
+ const o=[];for(const nm of names.sort().slice(-n).reverse()){const v=await env.KR.get(nm);if(v)o.push(JSON.parse(v))}return o}
+// alerte Discord (secret DISCORD_WEBHOOK à définir dans le worker, jamais dans le site)
+function notify(env,ctx,title,fields){if(!env.DISCORD_WEBHOOK)return;
+ const p=fetch(env.DISCORD_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[{title,color:0xc04dff,fields,timestamp:new Date().toISOString()}]})}).catch(()=>{});
+ if(ctx&&ctx.waitUntil)ctx.waitUntil(p)}
+async function api(req,env,url,ctx){
  if(!env.KR)return out({error:'KV non configuré (binding KR)'},500);
  const path=url.pathname,body=req.method==='POST'?await req.text():'';let j={};try{j=body?JSON.parse(body):{}}catch(e){}
- const cf=req.cf||{},geo={ip:req.headers.get('CF-Connecting-IP')||'',country:cf.country||'',region:cf.region||'',city:cf.city||''};
+ const cf=req.cf||{},geo={ip:req.headers.get('CF-Connecting-IP')||'',country:cf.country||'',region:cf.region||'',city:cf.city||''},gtxt=[cf.city,cf.region,cf.country].filter(Boolean).join(', ');
  const okP=p=>typeof p==='string'&&p.trim().length>=2&&p.trim().length<=24;
  const seen=async(pseudo,kid,via)=>{const id='user:'+encodeURIComponent(pseudo.toLowerCase());
   const o=JSON.parse(await env.KR.get(id)||'null')||{first:Date.now(),n:0};
@@ -98,12 +107,69 @@ async function api(req,env,url){
   if(!r||r.pseudo.toLowerCase()!==p.toLowerCase())return out({error:'invalid'},401);
   if(r.rev)return out({error:'revoked'},401);
   const role=await roleOf(r.pseudo);if(role==='bloque')return out({error:'blocked'},401);
-  if(path==='/api/login'){r.uses=(r.uses||0)+1;r.last=Date.now();await env.KR.put(hk,JSON.stringify(r));await seen(r.pseudo,r.id,'key')}
+  if(path==='/api/login'){r.uses=(r.uses||0)+1;r.last=Date.now();await env.KR.put(hk,JSON.stringify(r));await seen(r.pseudo,r.id,'key');await logEv(env,'login',r.pseudo,{via:'clé du serveur',ip:geo.ip,region:gtxt})}
   return out({ok:true,pseudo:r.pseudo,role});
+ }
+ const auth=async()=>{const k=String(j.k||''),p=String(j.pseudo||'').trim();if(!/^\d{8}$/.test(k)||!okP(p))return null;
+  const hk='key:'+await sha256('kr:'+k),r=JSON.parse(await env.KR.get(hk)||'null');
+  if(!r||r.rev||r.pseudo.toLowerCase()!==p.toLowerCase()||await roleOf(r.pseudo)==='bloque')return null;return{hk,r}};
+ const uidOf=p=>'user:'+encodeURIComponent(p.toLowerCase());
+ if(path==='/api/me/key'){ // changer sa propre clé
+  const a=await auth();if(!a)return out({error:'invalid'},401);
+  const nk=String(j.newKey||'').trim();if(!/^\d{8}$/.test(nk)||weak(nk))return out({error:'weak'},400);
+  const hk2='key:'+await sha256('kr:'+nk);if(await env.KR.get(hk2))return out({error:'keytaken'},409);
+  const r2={...a.r,key:nk,id:hk2.slice(4,16),changed:Date.now()};
+  await env.KR.put(hk2,JSON.stringify(r2));await env.KR.delete(a.hk);
+  const u=JSON.parse(await env.KR.get(uidOf(a.r.pseudo))||'null');if(u)await env.KR.put(uidOf(a.r.pseudo),JSON.stringify({...u,kid:r2.id}));
+  await logEv(env,'mykey',a.r.pseudo,{});return out({ok:true,key:nk});
+ }
+ if(path==='/api/me/pseudo'){ // changer son propre pseudo
+  const a=await auth();if(!a)return out({error:'invalid'},401);
+  const np=String(j.newPseudo||'').trim();if(!/^[\p{L}\p{N}_.\- ]{2,24}$/u.test(np))return out({error:'pseudo invalide'},400);
+  const oldId=uidOf(a.r.pseudo),newId=uidOf(np);if(newId!==oldId&&await env.KR.get(newId))return out({error:'taken'},409);
+  const u=JSON.parse(await env.KR.get(oldId)||'null')||{first:Date.now(),n:0,role:'membre'};
+  await env.KR.put(newId,JSON.stringify({...u,pseudo:np}));if(newId!==oldId)await env.KR.delete(oldId);
+  await env.KR.put(a.hk,JSON.stringify({...a.r,pseudo:np}));
+  await logEv(env,'mypseudo',np,{});return out({ok:true,pseudo:np});
+ }
+ if(path==='/api/stats'){ // statistiques envoyées par l'appareil du membre
+  const a=await auth();if(!a)return out({error:'invalid'},401);
+  const id=uidOf(a.r.pseudo),u=JSON.parse(await env.KR.get(id)||'null');if(!u)return out({error:'introuvable'},404);
+  const c=Math.max(0,Math.min(+j.checked||0,(u.checked||0)+5000)),v=Math.max(0,Math.min(+j.avail||0,c));
+  u.checked=Math.max(u.checked||0,c);u.avail=Math.max(u.avail||0,v);await env.KR.put(id,JSON.stringify(u));return out({ok:true});
+ }
+ if(path==='/api/top'){ // classement (recalculé au plus toutes les 5 min)
+  let t=JSON.parse(await env.KR.get('cfg:top')||'null');
+  if(!t||Date.now()-t.t>300000){const l=await listAll(env,'user:');
+   t={t:Date.now(),list:l.map(x=>x.v).filter(u=>(u.checked||0)>0&&u.role!=='bloque').sort((a,b)=>(b.avail||0)-(a.avail||0)||(b.checked||0)-(a.checked||0)).slice(0,20).map(u=>({pseudo:u.pseudo,role:u.role||'membre',checked:u.checked||0,avail:u.avail||0}))};
+   await env.KR.put('cfg:top',JSON.stringify(t))}
+  return out(t);
+ }
+ if(path==='/api/regstate')return out({open:(await env.KR.get('cfg:reg'))!=='0'});
+ if(path==='/api/register'){
+  if((await env.KR.get('cfg:reg'))==='0')return out({error:'closed'},403);
+  const p=String(j.pseudo||'').trim();
+  if(!/^[\p{L}\p{N}_.\- ]{2,24}$/u.test(p))return out({error:'pseudo invalide'},400);
+  const uid='user:'+encodeURIComponent(p.toLowerCase());
+  if(await env.KR.get(uid))return out({error:'taken'},409);
+  const ik='ip:'+await sha256('ip:'+geo.ip),n=+(await env.KR.get(ik)||0);
+  if(n>=3)return out({error:'limit'},429);
+  let key,hk;const mine=String(j.key||'').trim();
+  if(mine){
+   if(!/^\d{8}$/.test(mine)||/^(\d)\1{7}$/.test(mine)||'01234567890123456789'.includes(mine)||'98765432109876543210'.includes(mine))return out({error:'weak'},400);
+   key=mine;hk='key:'+await sha256('kr:'+key);if(await env.KR.get(hk))return out({error:'keytaken'},409);
+  }else for(let i=0;i<5;i++){key=String(crypto.getRandomValues(new Uint32Array(1))[0]%90000000+10000000);hk='key:'+await sha256('kr:'+key);if(!await env.KR.get(hk))break}
+  const r={id:hk.slice(4,16),pseudo:p,key,created:Date.now(),rev:0,uses:0,self:1};
+  await env.KR.put(hk,JSON.stringify(r));
+  await env.KR.put(uid,JSON.stringify({pseudo:p,kid:r.id,via:'self',first:Date.now(),last:0,n:0,role:'membre',...geo}));
+  await env.KR.put(ik,String(n+1),{expirationTtl:86400});
+  await logEv(env,'register',p,{ip:geo.ip,region:gtxt});
+  notify(env,ctx,'🆕 Nouveau compte',[{name:'Pseudo',value:p,inline:true},{name:'Région',value:gtxt||'—',inline:true}]);
+  return out({ok:true,key,pseudo:p});
  }
  if(path==='/api/seen'){ // clés classiques / admin : on enregistre juste pseudo + IP + région
   if(!okP(j.pseudo))return out({error:'invalid'},400);
-  const role=await seen(String(j.pseudo).trim(),j.kid,'legacy');return out({ok:true,role});
+  const role=await seen(String(j.pseudo).trim(),j.kid,'legacy');await logEv(env,'login',String(j.pseudo).trim(),{via:'clé classique',ip:geo.ip,region:gtxt});return out({ok:true,role});
  }
  if(path==='/api/role'){
   if(!okP(j.pseudo))return out({error:'invalid'},400);
@@ -111,11 +177,15 @@ async function api(req,env,url){
  }
  if(path.startsWith('/api/admin/')){
   if(!await adminOK(req,path,body))return out({error:'admin requis'},403);
-  if(path==='/api/admin/users'){const l=await listAll(env,'user:');return out({users:l.map(x=>x.v).sort((a,b)=>b.last-a.last)})}
+  if(path==='/api/admin/users'){const l=await listAll(env,'user:'),ks=await listAll(env,'key:'),km={};ks.forEach(x=>{if(!x.v.rev&&x.v.pseudo)km[x.v.pseudo.toLowerCase()]=x.v.key});
+   return out({users:l.map(x=>({...x.v,key:km[String(x.v.pseudo).toLowerCase()]||''})).sort((a,b)=>b.last-a.last)})}
+  if(path==='/api/admin/log')return out({log:await recent(env,'log:',100)});
+  if(path==='/api/admin/reg'){await env.KR.put('cfg:reg',j.open?'1':'0');return out({ok:true})}
   if(path==='/api/admin/users/role'){
    if(!['membre','vip','modo','bloque'].includes(j.role))return out({error:'rôle invalide'},400);
-   const id='user:'+encodeURIComponent(String(j.pseudo||'').toLowerCase()),o=JSON.parse(await env.KR.get(id)||'null');
-   if(!o)return out({error:'introuvable'},404);o.role=j.role;await env.KR.put(id,JSON.stringify(o));return out({ok:true});
+   if(!okP(j.pseudo))return out({error:'pseudo invalide'},400);
+   const id='user:'+encodeURIComponent(String(j.pseudo).trim().toLowerCase()),o=JSON.parse(await env.KR.get(id)||'null')||{pseudo:String(j.pseudo).trim(),first:Date.now(),last:0,n:0,via:'admin'};
+   o.role=j.role;await env.KR.put(id,JSON.stringify(o));await logEv(env,'role',o.pseudo,{role:j.role});return out({ok:true});
   }
   if(path==='/api/admin/users/del'){await env.KR.delete('user:'+encodeURIComponent(String(j.pseudo||'').toLowerCase()));return out({ok:true})}
   if(path==='/api/admin/keys'&&req.method==='GET'){const l=await listAll(env,'key:');return out({keys:l.map(x=>x.v).sort((a,b)=>b.created-a.created)})}
@@ -123,13 +193,17 @@ async function api(req,env,url){
    if(!okP(j.pseudo))return out({error:'pseudo invalide'},400);
    let key,hk;for(let i=0;i<5;i++){key=String(crypto.getRandomValues(new Uint32Array(1))[0]%90000000+10000000);hk='key:'+await sha256('kr:'+key);if(!await env.KR.get(hk))break}
    const r={id:hk.slice(4,16),pseudo:String(j.pseudo).trim(),key,created:Date.now(),rev:0,uses:0};
-   await env.KR.put(hk,JSON.stringify(r));return out(r);
+   await env.KR.put(hk,JSON.stringify(r));
+   const uid='user:'+encodeURIComponent(r.pseudo.toLowerCase());if(!await env.KR.get(uid))await env.KR.put(uid,JSON.stringify({pseudo:r.pseudo,kid:r.id,via:'key',first:Date.now(),last:0,n:0,role:'membre'}));
+   await logEv(env,'keynew',r.pseudo,{});
+   return out(r);
   }
   if(path==='/api/admin/keys/rev'||path==='/api/admin/keys/del'){
    const id=String(j.id||'').replace(/[^0-9a-f]/g,'');if(id.length<12)return out({error:'id'},400);
    const f=(await env.KR.list({prefix:'key:'+id})).keys[0];if(!f)return out({error:'introuvable'},404);
    if(path.endsWith('/del'))await env.KR.delete(f.name);
    else{const r=JSON.parse(await env.KR.get(f.name));r.rev=j.rev?1:0;await env.KR.put(f.name,JSON.stringify(r))}
+   await logEv(env,path.endsWith('/del')?'keydel':j.rev?'keyrev':'keyrestore','',{id});
    return out({ok:true});
   }
  }
@@ -137,12 +211,12 @@ async function api(req,env,url){
 }
 
 export default {
- async fetch(req,env){
+ async fetch(req,env,ctx){
   if(req.method==='OPTIONS')return new Response(null,{headers:{...CORS,'Access-Control-Allow-Headers':'*'}});
   const url=new URL(req.url);
   const m=url.pathname.match(/^\/oauth\/(github|twitter|roblox)\/callback$/);
   if(m)return handleCallback(m[1],url,env);
-  if(url.pathname.startsWith('/api/'))return api(req,env,url);
+  if(url.pathname.startsWith('/api/'))return api(req,env,url,ctx);
 
   const q=url.searchParams;
   const u=(q.get('u')||'').trim(),p=q.get('p')||'Discord';

@@ -113,3 +113,18 @@ Discord : https://discord.gg/4Sr4AvRahb
 5) Admin > « Utilisateurs » : touche un pseudo pour voir son IP, sa région, ses connexions.
 Notes : le KV gratuit est limité à 1000 écritures/jour (chaque connexion en fait 1 à 2). L'IP et la région viennent de Cloudflare (la région est approximative).
 Les clés classiques (6 chiffres) marchent toujours : on y ajoute juste un pseudo libre. La clé admin (10 chiffres) n'est jamais mémorisée sur l'appareil.
+
+
+=== Mise à jour : pseudo obligatoire, rôles, français par défaut ===
+- Pseudo OBLIGATOIRE pour toutes les clés (6 et 8 chiffres). Seule la clé admin (10 chiffres) s'ouvre sans pseudo.
+- Admin > Utilisateurs : recherche, changement de rôle (Membre / VIP / Modérateur / Bloqué), ajout d'un pseudo avec rôle
+  avant même sa première connexion, export CSV. Une clé créée pour un pseudo l'ajoute aussi à la liste.
+- Menu : bouton « Déconnexion ».
+- La page s'ouvre toujours en français à chaque nouvelle visite ; une langue choisie reste active tant que l'onglet reste ouvert.
+- Pense à REDÉPLOYER worker.js dans Cloudflare (nouveaux comportements des rôles / clés).
+
+=== Création de clé par les visiteurs ===
+- Écran de connexion : « Pas de clé ? Créer ma clé avec un pseudo » -> le visiteur choisit un pseudo libre, reçoit une clé de 8 chiffres et se connecte avec.
+- Limites : pseudo unique, 3 créations par jour et par connexion internet (anti-abus).
+- Admin : bouton pour fermer/rouvrir les inscriptions ; dans Utilisateurs, chaque pseudo affiche sa clé (touche pour la voir).
+- Redéploie worker.js (nécessite le KV « KR »).
