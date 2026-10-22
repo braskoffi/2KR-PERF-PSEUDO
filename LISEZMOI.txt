@@ -138,7 +138,7 @@ Les clés classiques (6 chiffres) marchent toujours : on y ajoute juste un pseud
 
 
 === Application + jeu Pseudo Rush ===
-- IA > « Application » : page de téléchargement (installation en appli, ou fichier .html hors-ligne). IA > « Jeu » : Pseudo Rush.
+- IA > « Application » : page de téléchargement (installation en appli uniquement, pas de téléchargement du fichier du site). IA > « Jeu » : Pseudo Rush.
 - sw.js est maintenant un vrai service worker (cache hors-ligne) : redépose-le avec index.html et manifest.json.
 - Jeu : points cumulés par pseudo. 50 000 pts = VIP automatique, 250 000 pts = Modérateur. Le jeu ne donne JAMAIS le rôle Admin et ne touche pas aux rôles Admin / Bloqué.
 - Classement mondial actualisé toutes les 5 s (le site interroge le worker). Il faut un compte pseudo + clé de 8 chiffres et le worker avec le KV « KR ». REDÉPLOIE worker.js.

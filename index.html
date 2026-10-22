@@ -347,9 +347,9 @@ main{padding-top:72px}
 </section>
 
 <section id="dl"><div class="mono">Espace / IA / Application</div><h1>Télécharger l'appli</h1>
-<p class="sub">Le site complet, installé sur ton appareil comme une vraie application, avec son icône, en plein écran et utilisable hors-ligne.</p>
+<p class="sub">Le site complet, installé sur ton appareil comme une vraie application, avec son icône et en plein écran.</p>
 <div class="card"><button class="btn" id="dlInst">Installer l'application</button>
-<button class="btn alt" id="dlHtml">Télécharger le site (.html)</button><div class="note" id="dlN"></div></div>
+<div class="note" id="dlN">L’application demande ta clé à chaque ouverture. L’onglet Admin n’apparaît qu’avec la clé admin à 10 chiffres, qui n’est jamais mémorisée sur l’appareil.</div></div>
 <div class="card" style="margin-top:12px"><div class="k">Si le bouton ne propose rien</div>
 <div class="note">Android (Chrome) : menu ⋮ puis « Installer l'application ».<br>iPhone / iPad (Safari) : Partager puis « Sur l'écran d'accueil ».<br>PC (Chrome / Edge) : icône « Installer » dans la barre d'adresse.<br>L'installation demande que le site soit en ligne en https (voir LISEZMOI).</div></div>
 <button class="btn alt" onclick="go('ia')">← Retour</button></section>
@@ -1134,8 +1134,6 @@ if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.
 let DI=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();DI=e});
 $('iaCatApp').onclick=()=>go('dl');$('iaCatGame').onclick=()=>go('game');
 $('dlInst').onclick=async()=>{if(DI){DI.prompt();await DI.userChoice;DI=null;$('dlN').textContent='Installation lancée.'}else $('dlN').textContent='Ton navigateur ne propose pas l\u2019installation ici : suis les étapes ci-dessous (le site doit être en https).'};
-$('dlHtml').onclick=async()=>{let t;try{t=await fetch(location.href).then(r=>r.text())}catch(e){t='<!DOCTYPE html>\n'+document.documentElement.outerHTML}
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/html'}));a.download='2KR-PERF-PSEUDO.html';a.click();$('dlN').textContent='Fichier téléchargé. Il marche hors-ligne, mais le classement et les comptes demandent internet.'};
 // ===== Jeu : Pseudo Rush =====
 const GW=360,GH=520,GPW=70;let gRun=0,gS,gRaf,gSid=null,gSig=null,gTot=0;
 const gf=n=>(+n||0).toLocaleString('fr-FR'),gm=c=>Math.min(8,1+(c/5|0));
