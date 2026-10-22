@@ -128,3 +128,10 @@ Les clés classiques (6 chiffres) marchent toujours : on y ajoute juste un pseud
 - Limites : pseudo unique, 3 créations par jour et par connexion internet (anti-abus).
 - Admin : bouton pour fermer/rouvrir les inscriptions ; dans Utilisateurs, chaque pseudo affiche sa clé (touche pour la voir).
 - Redéploie worker.js (nécessite le KV « KR »).
+
+=== Rôle Admin (admin délégué) ===
+- Admin > Utilisateurs : le rôle « Admin » est dans la liste des rôles. Admin > « Créer une clé » : choisis le rôle (Membre, VIP, Modérateur, Admin) avant de créer la clé.
+- Un admin délégué se connecte avec pseudo + clé de 8 chiffres et voit l'onglet Admin : utilisateurs, rôles, clés, journal, inscriptions.
+- Réservé à l'admin principal (clé de 10 chiffres, seule à pouvoir signer les réglages) : texte en gros, verrouillage, serveur, Client ID, révocation des clés 1 à 10.
+- Un admin délégué ne peut pas retirer le rôle, supprimer, ni voir/révoquer la clé d'un autre admin ; seul l'admin principal le peut.
+- Redéploie worker.js (les routes admin acceptent maintenant les admins délégués).

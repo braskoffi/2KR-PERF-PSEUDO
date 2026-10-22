@@ -56,6 +56,7 @@ section{display:none}section.on{display:block}
 #clock{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 12px;box-shadow:var(--glow);line-height:1.15}
 #ck{display:block;font:700 18px ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
 #cd{display:block;font-size:10px;color:var(--mut);text-transform:capitalize}
+body.dg .mo-only{display:none!important}.dg-only{display:none}body.dg .dg-only{display:block}
 #menu{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 62px);width:min(250px,calc(100vw - 20px));z-index:24;display:none}
 #menu.on{display:block}
 #menu .goo{position:absolute;inset:0;filter:url(#gooF);z-index:1;pointer-events:none}
@@ -295,26 +296,27 @@ main{padding-top:72px}
 <section id="adm">
 <div class="mono">Espace / Admin</div>
 <h1>Admin</h1><p class="sub">Tout ce que tu fais ici apparaît en direct chez tout le monde.</p>
-<div class="card"><label>Texte en gros pour tout le monde</label>
+<div class="note dg-only">Tu es admin délégué : tu gères les utilisateurs, les rôles et les clés. Les réglages généraux (texte, verrouillage, serveur, Client ID) et les comptes admin restent réservés à l’admin principal.</div>
+<div class="card mo-only"><label>Texte en gros pour tout le monde</label>
 <textarea id="atx" maxlength="300" style="min-height:90px"></textarea>
 <button class="btn" id="asend">Afficher pour tous</button>
 <button class="btn alt" id="aclr">Effacer le texte</button></div>
-<div class="card" style="margin-top:12px"><div class="k">Verrouillage général</div>
+<div class="card mo-only" style="margin-top:12px"><div class="k">Verrouillage général</div>
 <div class="note" id="alk"></div><button class="btn alt" id="alkb">Verrouiller le site pour tous</button></div>
-<div class="card" style="margin-top:12px"><label>N° de clé (1 à 10)</label>
+<div class="card mo-only" style="margin-top:12px"><label>N° de clé (1 à 10)</label>
 <input id="akn" inputmode="numeric" maxlength="2" placeholder="1">
 <div class="two"><button class="btn" id="arev">Révoquer</button><button class="btn alt" id="arst">Rétablir</button></div>
 <div class="note" id="arl"></div></div>
-<div class="card" style="margin-top:12px"><label>Client ID Discord (connexion par compte)</label>
+<div class="card mo-only" style="margin-top:12px"><label>Client ID Discord (connexion par compte)</label>
 <input id="adc" inputmode="numeric" maxlength="25" placeholder="123456789012345678">
 <button class="btn" id="adsv">Enregistrer pour tous</button>
 <div class="note" id="adn"></div></div>
-<div class="card" style="margin-top:12px"><label>Client ID du bot Discord (visible par tous dans l'onglet « Bot Discord »)</label>
+<div class="card mo-only" style="margin-top:12px"><label>Client ID du bot Discord (visible par tous dans l'onglet « Bot Discord »)</label>
 <input id="abt" inputmode="numeric" maxlength="25" placeholder="123456789012345678">
 <button class="btn" id="abtsv">Enregistrer pour tous</button>
 <div class="note" id="abn"></div>
 <div class="note">ID = Developer Portal > ton application > General Information > Application ID. Pour que tout le monde puisse l'ajouter, active « Public Bot » dans l'onglet Bot. Limites Discord : au-delà de 10 serveurs, /creer-serveur ne marche plus ; au-delà de 100, Discord demande de faire vérifier le bot.</div></div>
-<div class="card" style="margin-top:12px"><div class="k">Autres connexions par compte</div>
+<div class="card mo-only" style="margin-top:12px"><div class="k">Autres connexions par compte</div>
 <label>Pseudo du bot Telegram (sans @, via @BotFather)</label>
 <input id="atg" maxlength="32" placeholder="moncoolbot">
 <label>Client ID GitHub</label>
@@ -326,7 +328,7 @@ main{padding-top:72px}
 <button class="btn" id="adsv2">Enregistrer pour tous</button>
 <div class="note" id="adn2"></div>
 <div class="note">Les clés secrètes de ces applications (GitHub, Twitter/X, Roblox) ne se configurent jamais ici : elles restent uniquement dans les variables d'environnement de ton worker Cloudflare. Voir LISEZMOI.</div></div>
-<div class="card" style="margin-top:12px"><label>Adresse du serveur (Cloudflare Worker avec KV)</label>
+<div class="card mo-only" style="margin-top:12px"><label>Adresse du serveur (Cloudflare Worker avec KV)</label>
 <input id="aws" placeholder="https://mon-worker.workers.dev"><button class="btn" id="awsv">Enregistrer pour tous</button>
 <div class="note">Nécessaire pour les clés liées à un pseudo, la liste des utilisateurs, leur IP et leur région.</div></div>
 <div class="card" style="margin-top:12px"><div class="k">Inscription libre (les visiteurs créent leur clé avec un pseudo)</div><div class="note" id="regn"></div><button class="btn alt" id="regb">…</button></div>
@@ -334,7 +336,7 @@ main{padding-top:72px}
 <div id="udr" class="drw"><input id="uq" placeholder="Rechercher un pseudo…" style="margin-top:10px" autocomplete="off"><div class="two"><input id="nup" maxlength="24" placeholder="Nouveau pseudo" autocomplete="off"><select id="nur"></select></div><button class="btn" id="nub">Ajouter / changer le rôle</button><button class="btn alt" id="uexp">Exporter la liste (.csv)</button><div class="note" id="unm"></div><div id="ul"></div></div></div>
 <div class="card" style="margin-top:12px"><button class="btn alt" id="ldb">📜 Journal d’activité ▾</button><div id="ldr" class="drw"><div id="ll"></div></div></div>
 <div class="card" style="margin-top:12px"><div class="k">Créer une clé liée à un pseudo</div>
-<input id="knp" maxlength="24" placeholder="Pseudo de la personne"><button class="btn" id="knb">Créer la clé</button>
+<input id="knp" maxlength="24" placeholder="Pseudo de la personne"><select id="knr"></select><button class="btn" id="knb">Créer la clé</button>
 <div class="note notranslate" id="knm"></div><button class="btn alt" id="kdb">🔑 Clés créées ▾</button>
 <div id="kdr" class="drw"><div id="kl"></div></div></div>
 <div class="note" id="ast"></div><div class="note" id="asy">Temps réel : connexion…</div>
@@ -509,7 +511,7 @@ const rdy=new Promise(r=>{RDY=r;setTimeout(r,2500)});
 const srv=()=>{let v='';try{v=VA||''}catch(e){}return(ST.w||v||'').trim().replace(/\/+$/,'')};
 async function srvReq(method,path,o,admin){const base=srv();if(!base)return{ok:false,st:0,j:{}};
  const b=method==='POST'?JSON.stringify(o||{}):'',hd={'Content-Type':'application/json'};
- try{if(admin){const ts=Date.now()+'';hd['X-Ts']=ts;hd['X-Sig']=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(ts+'\n'+path+'\n'+b)))}
+ try{if(admin&&ME&&ME.dadmin&&!ME.priv){hd['X-K']=encodeURIComponent(ME.k);hd['X-P']=encodeURIComponent(ME.pseudo)}else if(admin){const ts=Date.now()+'';hd['X-Ts']=ts;hd['X-Sig']=b64(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},ME.priv,enc.encode(ts+'\n'+path+'\n'+b)))}
   const r=await fetch(base+path,{method,headers:hd,body:method==='POST'?b:undefined});
   return{ok:r.ok,st:r.status,j:await r.json().catch(()=>({}))}}catch(e){return{ok:false,st:0,j:{}}}}
 function kickMe(m){try{localStorage.removeItem('kr_k');sessionStorage.setItem('kr_m',m)}catch(e){}location.reload()}
@@ -523,6 +525,7 @@ async function login(k){
   return{kid:0,admin:true,priv}}catch(e){}}
  return null}
 
+function admUI(){if(!ME)return;$('nadm').style.display=(ME.admin||ME.dadmin)?'':'none';document.body.classList.toggle('dg',!!ME.dadmin&&!ME.admin)}
 let bad=0,until=0;
 async function open_(){
  const k=$('key').value.trim(),ps=$('pseudo').value.trim();
@@ -532,7 +535,7 @@ async function open_(){
  $('kerr').textContent='Vérification…';
  let me=await login(k);await rdy;let sm='';
  if(!me&&/^\d{8}$/.test(k)){const r=await srvReq('POST','/api/login',{k,pseudo:ps});
-  if(r.ok)me={kid:-1,admin:false,srv:1,role:r.j.role};else sm=r.st===401?(r.j.error==='revoked'?'Cette clé a été révoquée.':r.j.error==='blocked'?'Accès bloqué par un admin.':'Clé ou pseudo invalide.'):'Serveur injoignable ou non configuré.'}
+  if(r.ok)me={kid:-1,admin:false,srv:1,role:r.j.role,dadmin:r.j.role==='admin'};else sm=r.st===401?(r.j.error==='revoked'?'Cette clé a été révoquée.':r.j.error==='blocked'?'Accès bloqué par un admin.':'Clé ou pseudo invalide.'):'Serveur injoignable ou non configuré.'}
  const rev=me&&me.kid>0&&ST.r.includes(me.kid);
  if(!me||rev){if(++bad>=5){until=Date.now()+30000;bad=0}$('kerr').textContent=rev?'Cette clé a été révoquée.':(sm||'Clé invalide.');return}
  ME=me;bad=0;$('kerr').textContent='';$('key').value='';
@@ -541,8 +544,8 @@ async function open_(){
   else{localStorage.removeItem('kr_k');localStorage.removeItem('kr_p');localStorage.setItem('kr_rem',$('rem').checked?'1':'0')}}catch(e){}
  if(!me.srv)srvReq('POST','/api/seen',{pseudo:me.pseudo,kid:me.kid}).then(r=>{me.role=r.j.role;if(r.j.role==='bloque')kickMe('Accès bloqué par un admin.')});
  if(!me.srv&&!me.admin)setInterval(async()=>{const r=await srvReq('POST','/api/role',{pseudo:me.pseudo});if(r.ok){me.role=r.j.role;if(r.j.role==='bloque')kickMe('Accès bloqué par un admin.')}},60000);
- if(me.srv)setInterval(async()=>{const r=await srvReq('POST','/api/ping',{k:me.k,pseudo:me.pseudo});if(r.ok)me.role=r.j.role;if(r.st===401)kickMe(r.j.error==='blocked'?'Accès bloqué par un admin.':'Cette clé a été révoquée.')},60000);
- $('nadm').style.display=me.admin?'':'none';if(me.admin)setTimeout(regLoad,800);
+ if(me.srv)setInterval(async()=>{const r=await srvReq('POST','/api/ping',{k:me.k,pseudo:me.pseudo});if(r.ok){me.role=r.j.role;me.dadmin=r.j.role==='admin';admUI()}if(r.st===401)kickMe(r.j.error==='blocked'?'Accès bloqué par un admin.':'Cette clé a été révoquée.')},60000);
+ admUI();if(me.admin||me.dadmin)setTimeout(regLoad,800);
  $('login').style.display='none';$('boot').style.display='flex';
  const m=['Synchronisation des réglages…','Démarrage du moteur…','Connexion de la session…'];let p=0;
  const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on');render();try{const t=sessionStorage.getItem('kr_t');if(t){sessionStorage.removeItem('kr_t');go(t)}}catch(e){}},250)}
@@ -566,7 +569,7 @@ $('open').onclick=()=>REG?register():open_();$('key').onkeydown=e=>{if(e.key==='
 function render(){
  if(!ME)return;
  if(ME.kid>0&&ST.r.includes(ME.kid)){try{localStorage.removeItem('kr_k');sessionStorage.setItem('kr_m','Cette clé a été révoquée.')}catch(e){}location.reload();return}
- const lock=!!ST.l&&!ME.admin;
+ const lock=!!ST.l&&!ME.admin&&!ME.dadmin;
  $('olk').classList.toggle('on',lock);accRender();botRender();
  $('obt').textContent=ST.x;$('obg').classList.toggle('on',!!ST.x&&dis!==ST.t&&!lock);
  if(ME.admin){$('alkb').textContent=ST.l?'Déverrouiller le site':'Verrouiller le site pour tous';
@@ -600,7 +603,7 @@ async function pub(n){
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const ago=t=>{if(!t)return'—';const s=(Date.now()-t)/1e3;return s<60?'à l’instant':s<3600?Math.floor(s/60)+' min':s<86400?Math.floor(s/3600)+' h':Math.floor(s/86400)+' j'};
 const fdt=t=>t?new Date(t).toLocaleString('fr-FR'):'—';
-const ROLES={membre:'Membre',vip:'VIP',modo:'Modérateur',bloque:'Bloqué'};
+const ROLES={membre:'Membre',vip:'VIP',modo:'Modérateur',admin:'Admin',bloque:'Bloqué'};
 const drw=(btn,box,fn)=>{btn.onclick=()=>{const on=!box.classList.contains('on');box.classList.toggle('on',on);btn.textContent=btn.textContent.replace(/[▴▾]$/,on?'▴':'▾');if(on)fn()}};
 const srvErr=(l,r)=>{l.textContent=srv()?'Erreur serveur ('+(r.st||'injoignable')+') : vérifie le worker (KV « KR » et clé admin).':'Renseigne d’abord l’adresse du serveur.'};
 let US=[];
@@ -615,6 +618,7 @@ function drawUsers(){const l=$('ul'),q=($('uq').value||'').trim().toLowerCase(),
   if(u.key){const kp=el('div'),kv=el('b','notranslate','••••••••');kv.onclick=e=>{e.stopPropagation();kv.textContent=kv.textContent[0]==='•'?u.key:'••••••••'};kp.append('Clé (touche pour voir) : ',kv);d.append(kp)}
   const sel=el('select');sel.style.cssText='background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit';
   Object.keys(ROLES).forEach(r=>{const o=el('option','',ROLES[r]);o.value=r;if((u.role||'membre')===r)o.selected=true;sel.append(o)});
+  if((u.role||'membre')==='admin'&&!ME.admin)sel.disabled=true;
   sel.onclick=e=>e.stopPropagation();sel.onchange=async()=>{await srvReq('POST','/api/admin/users/role',{pseudo:u.pseudo,role:sel.value},1);loadUsers()};
   const rl=el('div');rl.append('Rôle : ',sel);d.append(rl);
   const km=el('div','notranslate'),nk=el('button','btn','Créer une nouvelle clé pour ce pseudo');
@@ -638,7 +642,7 @@ async function loadLog(){const l=$('ll');l.textContent='Chargement…';const r=a
  const a=r.j.log||[];l.textContent=a.length?'':'Aucune activité.';$('ldb').textContent='📜 Journal d’activité ('+a.length+') ▴';
  a.forEach(e=>{const row=el('div','ur'),hd=el('div');hd.style.cssText='display:flex;justify-content:space-between;gap:8px';
   hd.append(el('b','notranslate',(LEV[e.t]||e.t)+(e.pseudo?' · '+e.pseudo:'')),el('span','',ago(e.ts)));row.append(hd);
-  const det=[e.role&&'Rôle : '+(ROLES[e.role]||e.role),e.via&&'Type : '+e.via,e.ip&&'IP : '+e.ip,e.region&&'Région : '+e.region].filter(Boolean).join(' · ');
+  const det=[e.role&&'Rôle : '+(ROLES[e.role]||e.role),e.via&&'Type : '+e.via,e.by&&'Par : '+e.by,e.ip&&'IP : '+e.ip,e.region&&'Région : '+e.region].filter(Boolean).join(' · ');
   if(det)row.append(el('div','k notranslate',det));l.append(row)})}
 drw($('ldb'),$('ldr'),loadLog);
 let REGOPEN=true;
@@ -651,9 +655,10 @@ $('nub').onclick=async()=>{const p=$('nup').value.trim();if(p.length<2||p.length
 $('uexp').onclick=()=>{const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"',rows=[['pseudo','role','ip','pays','region','ville','connexions','premiere','derniere'].join(',')].concat(US.map(u=>[u.pseudo,u.role||'membre',u.ip,u.country,u.region,u.city,u.n||0,fdt(u.first),fdt(u.last)].map(q).join(',')));
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv'}));a.download='utilisateurs.csv';a.click()};drw($('kdb'),$('kdr'),loadKeys);
 $('awsv').onclick=()=>pub({w:$('aws').value.trim().replace(/\/+$/,'')});
+Object.keys(ROLES).filter(r=>r!=='bloque').forEach(r=>{const o=el('option','',ROLES[r]);o.value=r;$('knr').append(o)});
 $('knb').onclick=async()=>{const p=$('knp').value.trim();if(p.length<2||p.length>24){$('knm').textContent='Pseudo de 2 à 24 caractères.';return}
- $('knm').textContent='Création…';const r=await srvReq('POST','/api/admin/keys',{pseudo:p},1);
- if(!r.ok){$('knm').textContent='Échec ('+(r.st||'serveur injoignable ou non configuré')+').';return}
+ $('knm').textContent='Création…';const r=await srvReq('POST','/api/admin/keys',{pseudo:p,role:$('knr').value},1);
+ if(!r.ok){$('knm').textContent=r.st===403?'Réservé à l’admin principal (ce pseudo est admin).':'Échec ('+(r.st||'serveur injoignable ou non configuré')+').';return}
  $('knm').textContent='Clé de '+p+' : '+r.j.key+' (copiée). Il se connecte avec ce pseudo + cette clé.';$('knp').value='';
  try{navigator.clipboard.writeText(r.j.key)}catch(e){}if($('kdr').classList.contains('on'))loadKeys()};
 $('asend').onclick=()=>pub({x:$('atx').value.trim()});
