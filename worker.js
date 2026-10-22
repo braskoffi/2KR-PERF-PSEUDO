@@ -145,6 +145,28 @@ async function api(req,env,url,ctx){
    await env.KR.put('cfg:top',JSON.stringify(t))}
   return out(t);
  }
+ if(path==='/api/game/top')return out({list:JSON.parse(await env.KR.get('game:top')||'[]'),vip:50000,modo:250000});
+ const hm=async(m,sec)=>{const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(sec),{name:'HMAC',hash:'SHA-256'},false,['sign']);return[...new Uint8Array(await crypto.subtle.sign('HMAC',k,new TextEncoder().encode(m)))].map(b=>b.toString(16).padStart(2,'0')).join('')};
+ const gsec=async()=>{let s=await env.KR.get('cfg:gsec');if(!s){s=crypto.randomUUID()+crypto.randomUUID();await env.KR.put('cfg:gsec',s)}return s};
+ if(path==='/api/game/start'){const a=await auth();if(!a)return out({error:'invalid'},401);
+  const sid=Date.now()+'.'+Math.random().toString(36).slice(2,8);return out({sid,sig:await hm(a.r.pseudo.toLowerCase()+'|'+sid,await gsec())})}
+ if(path==='/api/game/score'){ // le jeu ne donne que VIP (50 000 pts) puis Modérateur (250 000 pts) : jamais Admin
+  const a=await auth();if(!a)return out({error:'invalid'},401);
+  const sid=String(j.sid||''),ts=+sid.split('.')[0],dur=+j.dur,sc=Math.floor(+j.score),gap=(Date.now()-ts)/1000;
+  if(!ts||await hm(a.r.pseudo.toLowerCase()+'|'+sid,await gsec())!==j.sig)return out({error:'session invalide'},400);
+  if(!(sc>=0)||!(dur>=5)||dur>gap+3||gap>1800||sc>dur*200+100)return out({error:'score refusé'},422);
+  const id=uidOf(a.r.pseudo),u=JSON.parse(await env.KR.get(id)||'null');if(!u)return out({error:'introuvable'},404);
+  if(u.gsid===sid)return out({error:'déjà envoyé'},409);
+  u.gsid=sid;u.gpts=(u.gpts||0)+sc;u.gbest=Math.max(u.gbest||0,sc);
+  const old=u.role||'membre';let nr=old;
+  if(old==='membre'&&u.gpts>=50000)nr='vip';
+  if((old==='membre'||old==='vip')&&u.gpts>=250000)nr='modo';
+  u.role=nr;await env.KR.put(id,JSON.stringify(u));
+  if(nr!==old)await logEv(env,'role',u.pseudo,{role:nr,by:'jeu'});
+  let t=JSON.parse(await env.KR.get('game:top')||'[]').filter(x=>x.pseudo.toLowerCase()!==u.pseudo.toLowerCase());
+  t.push({pseudo:u.pseudo,role:nr,pts:u.gpts,best:u.gbest});t.sort((x,y)=>y.pts-x.pts);await env.KR.put('game:top',JSON.stringify(t.slice(0,50)));
+  return out({ok:true,total:u.gpts,best:u.gbest,role:nr,promoted:nr!==old});
+ }
  if(path==='/api/regstate')return out({open:(await env.KR.get('cfg:reg'))!=='0'});
  if(path==='/api/register'){
   if((await env.KR.get('cfg:reg'))==='0')return out({error:'closed'},403);
