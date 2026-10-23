@@ -92,6 +92,19 @@ main{padding-top:72px}
 #gwrap{position:relative;max-width:420px;margin:0 auto}#gcv{width:100%;display:block;border:1px solid var(--line);border-radius:14px;touch-action:none;background:#07040d}
 #gplay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(5,3,8,.84);border-radius:14px;text-align:center;padding:16px}#gplay .btn{max-width:220px}
 #ghud{text-align:center;font:700 14px ui-monospace,Menlo,monospace;margin:8px 0}
+#vz{position:fixed;inset:0;background:#000;z-index:9999;display:none;align-items:center;justify-content:center;transition:opacity .8s ease}
+#vz svg{width:min(62vw,260px);height:auto;overflow:visible;transition:opacity .35s ease}
+#boot{background:#02030a}
+.rg{position:relative;width:130px;height:130px;border-radius:50%;border:7px solid transparent;background:linear-gradient(#070816,#070816) padding-box,linear-gradient(180deg,#e8ecff,#4a58d8 70%,#1c2a9c) border-box;box-shadow:0 0 38px 6px rgba(40,70,255,.55),inset 0 0 22px rgba(60,90,255,.35);animation:rgp 1.8s ease-in-out infinite;margin:0 auto}
+.rd{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-15px 0 0 -13px;background:#fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 18px 6px rgba(120,150,255,.9);animation:rdp 1.8s ease-in-out infinite}
+@keyframes rgp{50%{box-shadow:0 0 60px 14px rgba(40,70,255,.8),inset 0 0 30px rgba(60,90,255,.5)}}
+@keyframes rdp{50%{transform:rotate(-45deg) scale(1.25);box-shadow:0 0 26px 9px rgba(140,170,255,1)}}
+.so{display:none;position:relative;width:230px;height:230px;margin:6px auto 12px;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,#02030a 0 36%,transparent 70%)}.so.on{display:flex}
+.so svg{position:relative;z-index:2}
+.sh{position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle,transparent 46%,rgba(35,85,255,.9) 52%,transparent 74%);-webkit-mask-image:radial-gradient(#000 1px,transparent 1.5px);mask-image:radial-gradient(#000 1px,transparent 1.5px);-webkit-mask-size:4px 4px;mask-size:4px 4px;animation:shp 2.4s ease-in-out infinite}
+.sr{position:absolute;width:132px;height:132px;border-radius:50%;border:2px solid rgba(40,100,255,.45);box-shadow:0 0 26px 2px rgba(30,70,255,.45),inset 0 0 18px rgba(30,70,255,.25);background:conic-gradient(from 0deg,transparent 0 72%,rgba(77,163,255,.95) 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));animation:srs 1.7s linear infinite}
+@keyframes srs{to{transform:rotate(360deg)}}
+@keyframes shp{0%,100%{transform:scale(.72);opacity:.15}50%{transform:scale(1.06);opacity:1}}
 </style>
 </head>
 <body>
@@ -112,13 +125,7 @@ main{padding-top:72px}
 <a href="https://discord.gg/Uxc4mj9tS9" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:14px;color:#e9a6ff;font-size:13px">Rejoindre le serveur Discord ↗</a>
 </div></div>
 
-<div id="boot">
-<div class="ico" style="margin:0 auto 8px">🎯</div>
-<div class="mono">Préparation</div>
-<h1 style="font-size:26px">Setting the scene<b>.</b></h1>
-<div class="sub" id="bt" style="margin:0">Synchronisation des réglages…</div>
-<div class="pb"><i id="bp"></i></div>
-</div>
+<div id="boot"><div class="rg"><div class="rd"></div></div><i id="bp" hidden></i><span id="bt" hidden></span></div>
 
 <div id="app">
 <svg width="0" height="0" style="position:absolute"><defs><filter id="gooF"><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter></defs></svg>
@@ -160,6 +167,7 @@ main{padding-top:72px}
 </div>
 <textarea id="cust" placeholder="Un pseudo par ligne"></textarea>
 <label>03 · Vitesse</label><select id="spd"><option value="1500">Lente</option><option value="700" selected>Normale</option><option value="250">Rapide</option></select>
+<div class="so" id="so"><i class="sh"></i><i class="sr"></i><svg viewBox="0 0 70 56" width="70" height="56"><g fill="none" stroke="#1f4dff" stroke-width="3" stroke-linecap="round"><path d="M3 15V9a6 6 0 0 1 6-6h10"/><path d="M51 3h10a6 6 0 0 1 6 6v6"/><path d="M3 41v6a6 6 0 0 0 6 6h10"/><path d="M67 41v6a6 6 0 0 1-6 6H51"/></g><text x="35" y="33" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="12" letter-spacing="1.5" font-weight="500">SCAN</text></svg></div>
 <button class="btn" id="go">Lancer le scan</button>
 <div class="note" id="bn"></div>
 </div>
@@ -371,6 +379,7 @@ main{padding-top:72px}
 <div class="ov" id="obg"><div class="mono">Message</div><div class="big" id="obt"></div><button class="btn alt" id="obc">Fermer</button></div>
 <div class="ov" id="olk"><div class="ico">🔒</div><div class="big">Accès verrouillé</div><div class="sub">L'admin a fermé le site pour le moment.</div></div>
 
+<div id="vz"><svg viewBox="-150 -150 300 300"><path id="vzc" d="M -52 8 L -10 48 L 56 -48" fill="none" stroke="#00f5c8" stroke-width="14"/><path id="vzr" d="M 0 -120 A 120 120 0 1 1 0 120 A 120 120 0 1 1 0 -120" fill="none" stroke="#00f5c8" stroke-width="12"/><circle id="vzd" r="11" fill="#35c4ea" cx="-52" cy="8"/></svg></div>
 <script>
 const $=id=>document.getElementById(id);
 // thème clair/sombre, appliqué immédiatement (avant même l'écran de connexion)
@@ -568,7 +577,7 @@ async function open_(){
  admUI();if(me.admin||me.dadmin)setTimeout(regLoad,800);
  $('login').style.display='none';$('boot').style.display='flex';
  const m=['Synchronisation des réglages…','Démarrage du moteur…','Connexion de la session…'];let p=0;
- const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{$('boot').style.display='none';$('app').classList.add('on');render();try{const t=sessionStorage.getItem('kr_t');if(t){sessionStorage.removeItem('kr_t');go(t)}}catch(e){}},250)}
+ const iv=setInterval(()=>{p+=Math.random()*14+6;if(p>=100){p=100;clearInterval(iv);setTimeout(()=>{vzPlay(()=>{$('boot').style.display='none';$('app').classList.add('on');render();try{const t=sessionStorage.getItem('kr_t');if(t){sessionStorage.removeItem('kr_t');go(t)}}catch(e){}})},250)}
   $('bp').style.width=p+'%';$('bt').textContent=m[Math.min(2,Math.floor(p/34))]},140);
 }
 $('key').oninput=()=>{$('plab').textContent=/^\d{10}$/.test($('key').value.trim())?'Pseudo (facultatif pour la clé admin)':'Pseudo (obligatoire)'};
@@ -1172,6 +1181,22 @@ async function gTop(){const r=await srvReq('GET','/api/game/top'),b=$('gtop');
  $('gme').textContent=gf(gTot)+' pts';$('gbar').style.width=Math.min(100,gTot/r.j.vip*100)+'%';
  b.innerHTML=a.length?a.map((u,i)=>'<div class="ur notranslate" style="display:flex;justify-content:space-between;gap:8px"><b>'+(MEDAL[i]||'#'+(i+1))+' '+esc(u.pseudo)+(u.role&&u.role!=='membre'?' · '+esc(ROLES[u.role]||''):'')+'</b><span>'+gf(u.pts)+'</span></div>').join(''):'<div class="note">Personne pour le moment : sois le premier.</div>'}
 setInterval(()=>{if($('game').classList.contains('on')&&!document.hidden)gTop()},5000);
+
+// ===== Animation de connexion : un point dessine la coche puis le cercle =====
+function vzPlay(done){const o=$('vz'),sv=o.firstElementChild,ck=$('vzc'),ci=$('vzr'),dt=$('vzd');
+ let L1,L2;try{L1=ck.getTotalLength();L2=ci.getTotalLength()}catch(e){return done()}
+ const ez=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2,T1=1100,T2=1000;
+ ck.style.strokeDasharray=L1;ci.style.strokeDasharray=L2;ck.style.strokeDashoffset=L1;ci.style.strokeDashoffset=L2;
+ dt.style.opacity=1;sv.style.opacity=1;o.style.transition='none';o.style.opacity=1;o.style.display='flex';
+ const t0=performance.now();
+ (function f(n){const t=n-t0;let p;
+  if(t<T1){const q=ez(t/T1);ck.style.strokeDashoffset=L1*(1-q);p=ck.getPointAtLength(L1*q)}
+  else if(t<T1+T2){ck.style.strokeDashoffset=0;const q=ez((t-T1)/T2);ci.style.strokeDashoffset=L2*(1-q);p=ci.getPointAtLength(L2*q)}
+  else{ci.style.strokeDashoffset=0;dt.style.opacity=0;
+   setTimeout(()=>{sv.style.opacity=0;setTimeout(()=>{done();o.style.transition='opacity .8s ease';o.style.opacity=0;setTimeout(()=>{o.style.display='none'},850)},380)},350);return}
+  dt.setAttribute('cx',p.x);dt.setAttribute('cy',p.y);requestAnimationFrame(f)})(t0)}
+
+setInterval(()=>{const o=$('so');if(o)o.classList.toggle('on',!!run)},250);
 </script>
 </body>
 </html>
